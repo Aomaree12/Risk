@@ -286,34 +286,33 @@
                 </div>
                 
                 <form id="dataFormElement" class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                                <i class="fas fa-calendar-alt text-teal-500 mr-2"></i>วันที่
-                            </label>
-                            <input type="date" id="dateInput" required 
-                                   class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                                <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>ระดับความเสี่ยง
-                            </label>
-                            <select id="riskLevelInput" required 
-                                    class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-sm">
-                                <option value="">เลือกระดับความเสี่ยง</option>
-                                <option value="A">A: เกิดเหตุการณ์และแก้ไขได้เองโดยไม่ส่งผลกระทบ</option>
-                                <option value="B">B: เกิดเหตุการณ์แต่ส่งต่อและแก้ไขได้ก่อนถึงผู้ป่วย</option>
-                                <option value="C">C: เกิดเหตุการณ์มีผลกระทบต่อผู้ป่วยแต่ไม่เกิดอันตราย</option>
-                                <option value="D">D: เกิดความคลาดเคลื่อนต้องเฝ้าระวังเป็นพิเศษ</option>
-                                <option value="E">E: เกิดอันตรายชั่วคราวต้องรักษาเพิ่มเติม</option>
-                                <option value="F">F: ต้องเข้ารับการรักษาในโรงพยาบาลนานขึ้น</option>
-                                <option value="G">G: เกิดความพิการถาวรหรือมีการร้องเรียน</option>
-                                <option value="H">H: ต้องทำการรักษาเพื่อช่วยชีวิตทันที</option>
-                                <option value="I">I: เป็นสาเหตุให้ผู้ป่วยถึงแก่ชีวิต</option>
-                            </select>
-                        </div>
-                    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div>
+        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
+            <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 1 (ถ้ามีไฟล์ใหม่จะทับของเดิม)
+        </label>
+        <input type="file" id="file1Input" accept="image/*" 
+               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
+        
+        <div id="preview1Container" class="hidden mt-3 p-2 bg-gray-50 rounded-lg border border-gray-200 inline-block">
+            <p class="text-xs text-gray-500 mb-2">รูปภาพเดิม:</p>
+            <img id="preview1Img" src="" class="h-24 w-auto object-cover rounded shadow-sm">
+        </div>
+    </div>
+    
+    <div>
+        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
+            <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 2 (ถ้ามีไฟล์ใหม่จะทับของเดิม)
+        </label>
+        <input type="file" id="file2Input" accept="image/*" 
+               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
+        
+        <div id="preview2Container" class="hidden mt-3 p-2 bg-gray-50 rounded-lg border border-gray-200 inline-block">
+            <p class="text-xs text-gray-500 mb-2">รูปภาพเดิม:</p>
+            <img id="preview2Img" src="" class="h-24 w-auto object-cover rounded shadow-sm">
+        </div>
+    </div>
+</div>
                     
                     <div>
                         <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
@@ -973,17 +972,15 @@ function editData(id) {
     const item = allData.find(d => d.id === id);
     if (!item) return;
 
-    // 1. สลับไปหน้าเพิ่มข้อมูลก่อน (เพื่อให้มัน Reset ค่าว่างๆ ไปก่อน)
+    // สลับไปหน้าฟอร์ม
     switchTab('add');
 
-    // 2. จากนั้นค่อยเอาข้อมูลที่เราเลือก มาใส่ทับลงไป
     currentEditId = id;
     currentEditData = item;
     
     document.getElementById('formTitle').textContent = 'แก้ไขข้อมูล';
     
-    // จัดการรูปแบบวันที่ (Google Sheet ส่งมาเป็นแบบมีตัว T เช่น 2026-04-07T...) 
-    // เราต้องตัดเอาเฉพาะ YYYY-MM-DD เพื่อให้ช่อง input รับได้
+    // จัดการวันที่
     let dateValue = item.date;
     if (dateValue && dateValue.includes('T')) {
         dateValue = dateValue.split('T')[0];
@@ -995,6 +992,26 @@ function editData(id) {
     document.getElementById('detailsInput').value = item.details;
     document.getElementById('solutionInput').value = item.solution || '';
     document.getElementById('reporterInput').value = item.reporter;
+
+    // แสดงรูปเก่า 1 (ถ้ามี)
+    const preview1Container = document.getElementById('preview1Container');
+    const preview1Img = document.getElementById('preview1Img');
+    if (item.file1) {
+        preview1Img.src = item.file1;
+        preview1Container.classList.remove('hidden');
+    } else {
+        preview1Container.classList.add('hidden');
+    }
+
+    // แสดงรูปเก่า 2 (ถ้ามี)
+    const preview2Container = document.getElementById('preview2Container');
+    const preview2Img = document.getElementById('preview2Img');
+    if (item.file2) {
+        preview2Img.src = item.file2;
+        preview2Container.classList.remove('hidden');
+    } else {
+        preview2Container.classList.add('hidden');
+    }
 }
 
         // ดูรายละเอียด
