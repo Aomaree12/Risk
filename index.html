@@ -563,15 +563,22 @@
             dataView.classList.add('hidden');
             dashboardView.classList.add('hidden');
             
-            if (tab === 'add') {
-                addTab.classList.add('active');
-                addView.classList.remove('hidden');
-                // รีเซ็ตฟอร์มเมื่อเปิดหน้าเพิ่มข้อมูล
-                currentEditId = null;
-                currentEditData = null;
-                document.getElementById('formTitle').textContent = 'เพิ่มข้อมูลใหม่';
-                document.getElementById('dataFormElement').reset();
-                document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+if (tab === 'add') {
+    addTab.classList.add('active');
+    addView.classList.remove('hidden');
+    
+    // รีเซ็ตฟอร์มเมื่อเปิดหน้าเพิ่มข้อมูล
+    currentEditId = null;
+    currentEditData = null;
+    document.getElementById('formTitle').textContent = 'เพิ่มข้อมูลใหม่';
+    document.getElementById('dataFormElement').reset();
+    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+    
+    // สำคัญ: ซ่อนกรอบรูปภาพเก่า
+    const p1 = document.getElementById('preview1Container');
+    const p2 = document.getElementById('preview2Container');
+    if(p1) p1.classList.add('hidden');
+    if(p2) p2.classList.add('hidden');
             } else if (tab === 'data') {
                 dataTab.classList.add('active');
                 dataView.classList.remove('hidden');
