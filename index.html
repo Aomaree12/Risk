@@ -533,53 +533,38 @@
             menuOverlay.classList.add('hidden');
         }
 
-        // ฟังก์ชันสลับแท็บ
-        function switchTab(tab) {
-            const addTab = document.getElementById('addTab');
-            const dataTab = document.getElementById('dataTab');
-            const dashboardTab = document.getElementById('dashboardTab');
-            const addView = document.getElementById('addView');
-            const dataView = document.getElementById('dataView');
-            const dashboardView = document.getElementById('dashboardView');
-            
-            // ลบ active จากทุกแท็บ
-            addTab.classList.remove('active');
-            dataTab.classList.remove('active');
-            dashboardTab.classList.remove('active');
-            
-            // ซ่อนทุกหน้า
-            addView.classList.add('hidden');
-            dataView.classList.add('hidden');
-            dashboardView.classList.add('hidden');
-            
-if (tab === 'add') {
-    addTab.classList.add('active');
-    addView.classList.remove('hidden');
+function switchTab(tab, isEdit = false) {
+    document.getElementById('addTab').classList.remove('active');
+    document.getElementById('dataTab').classList.remove('active');
+    document.getElementById('dashboardTab').classList.remove('active');
     
-    // รีเซ็ตฟอร์มเมื่อเปิดหน้าเพิ่มข้อมูล
-    currentEditId = null;
-    currentEditData = null;
-    document.getElementById('formTitle').textContent = 'เพิ่มข้อมูลใหม่';
-    document.getElementById('dataFormElement').reset();
-    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+    document.getElementById('addView').classList.add('hidden');
+    document.getElementById('dataView').classList.add('hidden');
+    document.getElementById('dashboardView').classList.add('hidden');
     
-    // สำคัญ: ซ่อนกรอบรูปภาพเก่า
-    const p1 = document.getElementById('preview1Container');
-    const p2 = document.getElementById('preview2Container');
-    if(p1) p1.classList.add('hidden');
-    if(p2) p2.classList.add('hidden');
-            } else if (tab === 'data') {
-                dataTab.classList.add('active');
-                dataView.classList.remove('hidden');
-            } else if (tab === 'dashboard') {
-                dashboardTab.classList.add('active');
-                dashboardView.classList.remove('hidden');
-                initializeDashboard();
-            }
-            
-            // ปิดเมนูหลังจากเลือก
-            closeMenu();
+    if (tab === 'add') {
+        document.getElementById('addTab').classList.add('active');
+        document.getElementById('addView').classList.remove('hidden');
+        
+        // ถ้าไม่ได้อยู่ในโหมดแก้ไข ให้ล้างฟอร์ม
+        if (!isEdit) {
+            currentEditId = null;
+            currentEditData = null;
+            document.getElementById('formTitle').textContent = 'เพิ่มข้อมูลใหม่';
+            document.getElementById('dataFormElement').reset();
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         }
+    } else if (tab === 'data') {
+        document.getElementById('dataTab').classList.add('active');
+        document.getElementById('dataView').classList.remove('hidden');
+    } else if (tab === 'dashboard') {
+        document.getElementById('dashboardTab').classList.add('active');
+        document.getElementById('dashboardView').classList.remove('hidden');
+        initializeDashboard();
+    }
+    
+    closeMenu();
+}
         
         // เริ่มต้นแดชบอร์ด
         function initializeDashboard() {
@@ -965,31 +950,43 @@ if (tab === 'add') {
 
 // แก้ไขข้อมูล
 function editData(id) {
-    const item = allData.find(d => d.id === id);
+    const item = allData.find(d => String(d.id) === String(id));
     if (!item) return;
 
-    // 1. สลับไปหน้าเพิ่มข้อมูลก่อน (เพื่อให้มัน Reset ค่าว่างๆ ไปก่อน)
-    switchTab('add');
+    // สลับไปหน้าฟอร์ม โหมดแก้ไข
+    switchTab('add', true);
 
-    // 2. จากนั้นค่อยเอาข้อมูลที่เราเลือก มาใส่ทับลงไป
     currentEditId = id;
     currentEditData = item;
     
     document.getElementById('formTitle').textContent = 'แก้ไขข้อมูล';
     
-    // จัดการรูปแบบวันที่ (Google Sheet ส่งมาเป็นแบบมีตัว T เช่น 2026-04-07T...) 
-    // เราต้องตัดเอาเฉพาะ YYYY-MM-DD เพื่อให้ช่อง input รับได้
-    let dateValue = item.date;
-    if (dateValue && dateValue.includes('T')) {
-        dateValue = dateValue.split('T')[0];
+    // จัดการวันที่
+    let dateValue = '';
+    if (item.date) {
+        try {
+            const d = new Date(item.date);
+            if (!isNaN(d.getTime())) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateValue = `${year}-${month}-${day}`;
+            }
+        } catch(e) {}
     }
-    
     document.getElementById('dateInput').value = dateValue;
-    document.getElementById('subjectInput').value = item.subject;
-    document.getElementById('riskLevelInput').value = item.riskLevel;
-    document.getElementById('detailsInput').value = item.details;
+    
+    document.getElementById('subjectInput').value = item.subject || '';
+    document.getElementById('riskLevelInput').value = item.riskLevel || '';
+    document.getElementById('detailsInput').value = item.details || '';
     document.getElementById('solutionInput').value = item.solution || '';
-    document.getElementById('reporterInput').value = item.reporter;
+    document.getElementById('reporterInput').value = item.reporter || '';
+
+    // ล้างค่าไฟล์เดิมใน input (เพื่อให้แน่ใจว่ามันว่างเปล่าพร้อมให้เลือกใหม่)
+    document.getElementById('file1Input').value = '';
+    document.getElementById('file2Input').value = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
         // ดูรายละเอียด
