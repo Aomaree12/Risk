@@ -979,15 +979,17 @@ function editData(id) {
     const item = allData.find(d => d.id === id);
     if (!item) return;
 
-    // สลับไปหน้าฟอร์ม
+    // 1. สลับไปหน้าเพิ่มข้อมูลก่อน (เพื่อให้มัน Reset ค่าว่างๆ ไปก่อน)
     switchTab('add');
 
+    // 2. จากนั้นค่อยเอาข้อมูลที่เราเลือก มาใส่ทับลงไป
     currentEditId = id;
     currentEditData = item;
     
     document.getElementById('formTitle').textContent = 'แก้ไขข้อมูล';
     
-    // จัดการวันที่
+    // จัดการรูปแบบวันที่ (Google Sheet ส่งมาเป็นแบบมีตัว T เช่น 2026-04-07T...) 
+    // เราต้องตัดเอาเฉพาะ YYYY-MM-DD เพื่อให้ช่อง input รับได้
     let dateValue = item.date;
     if (dateValue && dateValue.includes('T')) {
         dateValue = dateValue.split('T')[0];
@@ -999,26 +1001,6 @@ function editData(id) {
     document.getElementById('detailsInput').value = item.details;
     document.getElementById('solutionInput').value = item.solution || '';
     document.getElementById('reporterInput').value = item.reporter;
-
-    // แสดงรูปเก่า 1 (ถ้ามี)
-    const preview1Container = document.getElementById('preview1Container');
-    const preview1Img = document.getElementById('preview1Img');
-    if (item.file1) {
-        preview1Img.src = item.file1;
-        preview1Container.classList.remove('hidden');
-    } else {
-        preview1Container.classList.add('hidden');
-    }
-
-    // แสดงรูปเก่า 2 (ถ้ามี)
-    const preview2Container = document.getElementById('preview2Container');
-    const preview2Img = document.getElementById('preview2Img');
-    if (item.file2) {
-        preview2Img.src = item.file2;
-        preview2Container.classList.remove('hidden');
-    } else {
-        preview2Container.classList.add('hidden');
-    }
 }
 
         // ดูรายละเอียด
