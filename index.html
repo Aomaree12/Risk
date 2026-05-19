@@ -29,6 +29,12 @@
         .gradient-text { background: linear-gradient(135deg, #0891b2, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); transition: all 0.3s ease; }
         .btn-primary:hover { background: linear-gradient(135deg, #0e7490, #0891b2); transform: translateY(-1px); }
+        
+        /* สไตล์สำหรับ Scrollbar ในตาราง */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 min-h-screen text-gray-800 font-sans">
@@ -69,7 +75,7 @@
         <div id="menuOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden" onclick="closeMenu()"></div>
 
         <div id="addView" class="hidden w-full animate-fade-in">
-            <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 w-full">
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-5xl mx-auto">
                 <h2 id="formTitle" class="text-2xl font-bold gradient-text mb-6 border-b pb-4"><i class="fas fa-pen-square mr-2"></i>เพิ่มข้อมูลใหม่</h2>
                 
                 <form id="dataFormElement" class="space-y-6">
@@ -202,7 +208,7 @@
                     </div>
                     
                     <button onclick="updateDashboard()" class="w-full sm:w-auto btn-primary text-white px-6 py-2.5 rounded-xl font-bold shadow-md">
-                        <i class="fas fa-filter mr-2"></i>ดูสถิติ
+                        <i class="fas fa-filter mr-2"></i>กรองข้อมูล
                     </button>
                 </div>
             </div>
@@ -222,18 +228,44 @@
         </div>
     </div>
 
+    <div id="riskTableModal" class="fixed inset-0 bg-black/50 modal-backdrop hidden z-[55] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col animate-fade-in">
+            <div class="flex justify-between items-center p-6 border-b bg-white rounded-t-2xl z-10">
+                <h2 class="text-xl font-bold gradient-text" id="riskTableTitle"><i class="fas fa-list mr-2"></i>รายการความเสี่ยง</h2>
+                <button onclick="closeRiskTableModal()" class="text-gray-400 hover:text-red-500 text-3xl transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-teal-50 text-teal-700">
+                                <th class="p-3 border-b rounded-tl-lg">วันที่</th>
+                                <th class="p-3 border-b">หน่วยงาน</th>
+                                <th class="p-3 border-b">หัวข้อ</th>
+                                <th class="p-3 border-b hidden md:table-cell">รายละเอียด</th>
+                                <th class="p-3 border-b text-center rounded-tr-lg">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="riskTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="detailModal" class="fixed inset-0 bg-black/50 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-fade-in">
-            <div class="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-fade-in">
+            <div class="flex justify-between items-center p-6 border-b bg-white rounded-t-2xl z-10">
                 <h2 class="text-xl font-bold gradient-text"><i class="fas fa-info-circle mr-2"></i>รายละเอียด</h2>
                 <button onclick="closeDetailModal()" class="text-gray-400 hover:text-red-500 text-3xl transition-colors"><i class="fas fa-times"></i></button>
             </div>
-            <div id="detailContent" class="p-6"></div>
+            <div id="detailContent" class="p-6 overflow-y-auto flex-1 custom-scrollbar"></div>
         </div>
     </div>
 
     <script>
-        // เปลี่ยนเป็น SCRIPT_URL ที่คุณ Deploy ได้เลย
+        // เปลี่ยนเป็น SCRIPT_URL ที่ Deploy
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuZXpealGoAtm5c129us9TyqD4Kww5KOJ_BYUvzy1aXGQw_eqRNVekL15A8W9mz8tL/exec';
         
         let allData = [];
@@ -281,7 +313,7 @@
             closeMenu();
         }
 
-        // ================= DASHBOARD =================
+        // ================= DASHBOARD & TABLE LIST =================
         function initializeDashboard() { 
             populateYearFilter(); 
             document.getElementById('dashboardDepartmentFilter').value = "";
@@ -324,16 +356,67 @@
             updateCharts(filteredData);
         }
 
+        // ฟังก์ชันสร้างการ์ดพร้อมใส่ onclick สำหรับเปิดตาราง
         function updateRiskStatsCards(data) {
             const levels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
             document.getElementById('riskStatsCards').innerHTML = levels.map(level => {
                 const count = data.filter(item => item.riskLevel === level).length;
                 return `
-                    <div class="bg-white rounded-xl shadow p-3 text-center border-b-4 border-teal-400">
+                    <div onclick="showRiskTable('${level}')" class="bg-white rounded-xl shadow p-3 text-center border-b-4 border-teal-400 cursor-pointer hover:bg-teal-50 transition-colors transform hover:-translate-y-1">
                         <div class="text-xs font-bold text-gray-500 mb-1">ระดับ ${level}</div>
                         <div class="text-2xl font-bold text-teal-600">${count}</div>
                     </div>`;
             }).join('');
+        }
+
+        // ฟังก์ชันแสดงตารางแยกตามระดับ (เจาะลึก Dashboard)
+        function showRiskTable(level) {
+            const dept = document.getElementById('dashboardDepartmentFilter').value;
+            const m = document.getElementById('monthFilter').value;
+            const y = document.getElementById('yearFilter').value;
+            
+            let filteredData = allData.filter(item => {
+                let matchDept = !dept || item['หน่วยงาน'] === dept;
+                let matchDate = true;
+                if (item.date) {
+                    const d = new Date(item.date);
+                    if (!isNaN(d)) {
+                        let matchM = !m || String(d.getMonth() + 1).padStart(2, '0') === m;
+                        let matchY = !y || d.getFullYear() == y;
+                        matchDate = matchM && matchY;
+                    } else if (m || y) matchDate = false;
+                } else if (m || y) matchDate = false;
+                
+                return matchDept && matchDate && item.riskLevel === level;
+            });
+
+            document.getElementById('riskTableTitle').innerHTML = `<i class="fas fa-list mr-2"></i>รายการความเสี่ยง ระดับ ${level}`;
+            const tbody = document.getElementById('riskTableBody');
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center p-6 text-gray-500">ไม่พบข้อมูล</td></tr>`;
+            } else {
+                tbody.innerHTML = filteredData.reverse().map(item => `
+                    <tr class="border-b hover:bg-teal-50/50 transition-colors">
+                        <td class="p-3 whitespace-nowrap text-sm text-gray-600">${formatDate(item.date)}</td>
+                        <td class="p-3 whitespace-nowrap">
+                            <span class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-xs font-medium"><i class="fas fa-hospital-user mr-1"></i>${item['หน่วยงาน'] || '-'}</span>
+                        </td>
+                        <td class="p-3 font-bold text-gray-800">${item.subject}</td>
+                        <td class="p-3 text-gray-600 text-sm hidden md:table-cell max-w-xs truncate" title="${item.details || ''}">${item.details || '-'}</td>
+                        <td class="p-3 whitespace-nowrap text-center">
+                            <button onclick="viewDetail('${item.id}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg mx-1 transition-colors" title="ดูรายละเอียด"><i class="fas fa-eye"></i></button>
+                            <button onclick="closeRiskTableModal(); editData('${item.id}')" class="text-teal-500 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 p-2 rounded-lg mx-1 transition-colors" title="แก้ไข"><i class="fas fa-edit"></i></button>
+                            <button onclick="closeRiskTableModal(); deleteData('${item.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg mx-1 transition-colors" title="ลบ"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            document.getElementById('riskTableModal').classList.remove('hidden');
+        }
+
+        function closeRiskTableModal() {
+            document.getElementById('riskTableModal').classList.add('hidden');
         }
 
         function updateCharts(data) {
@@ -439,39 +522,41 @@
             document.getElementById('detailContent').innerHTML = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500">วันที่</div><div class="font-bold">${formatDate(item.date)}</div></div>
-                        <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500">แผนก</div><div class="font-bold text-teal-700">${item['หน่วยงาน'] || '-'}</div></div>
+                        <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1"><i class="fas fa-calendar text-blue-500 mr-1"></i> วันที่</div><div class="font-bold">${formatDate(item.date)}</div></div>
+                        <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1"><i class="fas fa-hospital-user text-teal-500 mr-1"></i> แผนก</div><div class="font-bold text-teal-700">${item['หน่วยงาน'] || '-'}</div></div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">ระดับความเสี่ยง</div><span class="risk-badge ${getRiskClass(item.riskLevel)}">${item.riskLevel}</span></div>
-                    <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">หัวข้อ</div><div class="font-bold">${item.subject}</div></div>
+                    <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">หัวข้อ</div><div class="font-bold text-lg">${item.subject}</div></div>
                     <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">รายละเอียด</div><div class="whitespace-pre-wrap">${item.details || '-'}</div></div>
                     <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">แนวทางแก้ไข</div><div class="whitespace-pre-wrap">${item.solution || '-'}</div></div>
-                    <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1">ผู้รายงาน</div><div class="font-bold">${item.reporter || '-'}</div></div>
+                    <div class="bg-gray-50 p-4 rounded-xl border"><div class="text-sm text-gray-500 mb-1"><i class="fas fa-user text-green-500 mr-1"></i> ผู้รายงาน</div><div class="font-bold">${item.reporter || '-'}</div></div>
                     ${(item.file1 || item.file2) ? `
-                        <div class="mt-4 pt-4 border-t"><h3 class="font-bold mb-2">ไฟล์แนบ</h3><div class="flex gap-4">
-                            ${item.file1 ? `<img src="${item.file1}" class="h-24 rounded cursor-pointer" onclick="openImageModal('${item.file1}')">` : ''}
-                            ${item.file2 ? `<img src="${item.file2}" class="h-24 rounded cursor-pointer" onclick="openImageModal('${item.file2}')">` : ''}
+                        <div class="mt-4 pt-4 border-t"><h3 class="font-bold mb-3"><i class="fas fa-images text-pink-500 mr-2"></i>ไฟล์แนบ</h3><div class="flex gap-4">
+                            ${item.file1 ? `<img src="${item.file1}" class="h-32 object-cover rounded-lg border shadow-sm cursor-pointer hover:opacity-80 transition-opacity" onclick="openImageModal('${item.file1}')">` : ''}
+                            ${item.file2 ? `<img src="${item.file2}" class="h-32 object-cover rounded-lg border shadow-sm cursor-pointer hover:opacity-80 transition-opacity" onclick="openImageModal('${item.file2}')">` : ''}
                         </div></div>` : ''}
                 </div>`;
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
         function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
-        function openImageModal(url) { Swal.fire({ imageUrl: url, showConfirmButton: false, showCloseButton: true, background: 'rgba(0,0,0,0.9)' }); }
+        function openImageModal(url) { Swal.fire({ imageUrl: url, showConfirmButton: false, showCloseButton: true, background: 'rgba(0,0,0,0.9)', padding: '1rem' }); }
 
         async function deleteData(id) {
-            const res = await Swal.fire({ title: 'ลบข้อมูล?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก' });
+            const res = await Swal.fire({ title: 'ลบข้อมูล?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ลบข้อมูล', cancelButtonText: 'ยกเลิก' });
             if (!res.isConfirmed) return;
             Swal.fire({ title: 'กำลังลบ...', didOpen: () => Swal.showLoading() });
             try {
-                // ส่งเป็น JSON string เพื่อแก้ปัญหา FormData ตัดข้อมูล
                 const payload = { action: 'deleteData', id: id };
                 const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                if ((await response.json()).success) { Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1500, showConfirmButton: false }); loadData(); }
+                if ((await response.json()).success) { 
+                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1500, showConfirmButton: false }); 
+                    loadData(); 
+                }
             } catch (err) { Swal.fire({ icon: 'error', title: 'ลบไม่สำเร็จ' }); }
         }
 
-        // ================= SUBMIT DATA (แก้ปัญหาอัปโหลดรูปที่ 2 ไม่เข้า) =================
+        // ================= SUBMIT DATA =================
         document.getElementById('dataFormElement').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (isSubmitting) return;
@@ -480,7 +565,6 @@
             Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
-                // เปลี่ยนจากการใช้ FormData มาปั้น JSON ตรงๆ ป้องกัน Google Apps Script บล็อก Payload ขนาดใหญ่
                 const payload = {
                     action: currentEditId ? 'updateData' : 'addData',
                     date: document.getElementById('dateInput').value,
@@ -501,21 +585,10 @@
                 const f1 = document.getElementById('file1Input').files[0];
                 const f2 = document.getElementById('file2Input').files[0];
                 
-                if (f1) {
-                    payload.file1 = await fileToBase64(f1);
-                    payload.file1Name = f1.name;
-                }
-                if (f2) {
-                    payload.file2 = await fileToBase64(f2);
-                    payload.file2Name = f2.name;
-                }
+                if (f1) { payload.file1 = await fileToBase64(f1); payload.file1Name = f1.name; }
+                if (f2) { payload.file2 = await fileToBase64(f2); payload.file2Name = f2.name; }
 
-                // ส่งแบบ text/plain ซึ่ง GAS จะรับไปแปลงใน e.postData.contents
-                const response = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify(payload) 
-                });
-                
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
                 
                 if (result.success) {
@@ -524,7 +597,7 @@
                     loadData();
                 } else throw new Error();
             } catch (err) { 
-                Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: 'รูปภาพอาจมีขนาดใหญ่เกินไป หรือการเชื่อมต่อมีปัญหา' }); 
+                Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบการเชื่อมต่อ หรือขนาดไฟล์ใหญ่เกินไป' }); 
             }
             finally { isSubmitting = false; }
         });
