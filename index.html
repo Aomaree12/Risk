@@ -29,8 +29,6 @@
         .gradient-text { background: linear-gradient(135deg, #0891b2, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); transition: all 0.3s ease; }
         .btn-primary:hover { background: linear-gradient(135deg, #0e7490, #0891b2); transform: translateY(-1px); }
-        
-        /* สไตล์สำหรับ Scrollbar ในตาราง */
         .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -76,7 +74,12 @@
 
         <div id="addView" class="hidden w-full animate-fade-in">
             <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-5xl mx-auto">
-                <h2 id="formTitle" class="text-2xl font-bold gradient-text mb-6 border-b pb-4"><i class="fas fa-pen-square mr-2"></i>เพิ่มข้อมูลใหม่</h2>
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 id="formTitle" class="text-2xl font-bold gradient-text"><i class="fas fa-pen-square mr-2"></i>เพิ่มข้อมูลใหม่</h2>
+                    <button type="button" onclick="switchTab('data')" class="text-gray-400 hover:text-red-500 text-2xl transition-colors" title="ยกเลิกและปิด">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 
                 <form id="dataFormElement" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -135,11 +138,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 1 (ถ้ามี)</label>
-                            <input type="file" id="file1Input" accept="image/*" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                            <input type="file" id="file1Input" accept="image/*" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white mb-2">
+                            <div id="file1PreviewContainer" class="hidden bg-white p-2 rounded-xl border flex flex-col items-center">
+                                <span class="text-xs text-teal-600 font-medium mb-1"><i class="fas fa-eye mr-1"></i> รูปภาพปัจจุบันในระบบ:</span>
+                                <img id="file1Preview" src="" class="h-28 object-cover rounded shadow-sm">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 2 (ถ้ามี)</label>
-                            <input type="file" id="file2Input" accept="image/*" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                            <input type="file" id="file2Input" accept="image/*" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white mb-2">
+                            <div id="file2PreviewContainer" class="hidden bg-white p-2 rounded-xl border flex flex-col items-center">
+                                <span class="text-xs text-teal-600 font-medium mb-1"><i class="fas fa-eye mr-1"></i> รูปภาพปัจจุบันในระบบ:</span>
+                                <img id="file2Preview" src="" class="h-28 object-cover rounded shadow-sm">
+                            </div>
                         </div>
                     </div>
                     
@@ -246,8 +257,7 @@
                                 <th class="p-3 border-b text-center rounded-tr-lg">จัดการ</th>
                             </tr>
                         </thead>
-                        <tbody id="riskTableBody">
-                            </tbody>
+                        <tbody id="riskTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -265,7 +275,6 @@
     </div>
 
     <script>
-        // เปลี่ยนเป็น SCRIPT_URL ที่ Deploy
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuZXpealGoAtm5c129us9TyqD4Kww5KOJ_BYUvzy1aXGQw_eqRNVekL15A8W9mz8tL/exec';
         
         let allData = [];
@@ -307,6 +316,9 @@
                 document.getElementById('formTitle').innerHTML = '<i class="fas fa-pen-square mr-2"></i>เพิ่มข้อมูลใหม่';
                 document.getElementById('dataFormElement').reset();
                 document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+                // เพิ่มการซ่อนพรีวิวรูปภาพในกรณีที่เป็นการสร้างใหม่
+                document.getElementById('file1PreviewContainer').classList.add('hidden');
+                document.getElementById('file2PreviewContainer').classList.add('hidden');
             } else if (tab === 'dashboard') {
                 initializeDashboard();
             }
@@ -356,7 +368,6 @@
             updateCharts(filteredData);
         }
 
-        // ฟังก์ชันสร้างการ์ดพร้อมใส่ onclick สำหรับเปิดตาราง
         function updateRiskStatsCards(data) {
             const levels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
             document.getElementById('riskStatsCards').innerHTML = levels.map(level => {
@@ -369,7 +380,6 @@
             }).join('');
         }
 
-        // ฟังก์ชันแสดงตารางแยกตามระดับ (เจาะลึก Dashboard)
         function showRiskTable(level) {
             const dept = document.getElementById('dashboardDepartmentFilter').value;
             const m = document.getElementById('monthFilter').value;
@@ -512,7 +522,30 @@
             document.getElementById('detailsInput').value = item.details || '';
             document.getElementById('solutionInput').value = item.solution || '';
             document.getElementById('reporterInput').value = item.reporter || '';
-            document.getElementById('file1Input').value = ''; document.getElementById('file2Input').value = '';
+            
+            // ล้างค่า File Input
+            document.getElementById('file1Input').value = ''; 
+            document.getElementById('file2Input').value = '';
+
+            // ดึงลิงก์รูปเดิมในฐานข้อมูลขึ้นมาทำ พรีวิวรูปภาพ (Image Preview)
+            const preview1Container = document.getElementById('file1PreviewContainer');
+            const preview1Img = document.getElementById('file1Preview');
+            if (item.file1 && item.file1.startsWith('http')) {
+                preview1Img.src = item.file1;
+                preview1Container.classList.remove('hidden');
+            } else {
+                preview1Container.classList.add('hidden');
+            }
+
+            const preview2Container = document.getElementById('file2PreviewContainer');
+            const preview2Img = document.getElementById('file2Preview');
+            if (item.file2 && item.file2.startsWith('http')) {
+                preview2Img.src = item.file2;
+                preview2Container.classList.remove('hidden');
+            } else {
+                preview2Container.classList.add('hidden');
+            }
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
