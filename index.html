@@ -1,1275 +1,629 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทะเบียนความเสี่ยง หน่วยไตเทียม สถาบันบำราศนราดูร</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        .card {
-            transition: all 0.3s ease;
-            height: 240px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.08), 0 8px 8px -5px rgba(0, 0, 0, 0.03);
-        }
-        
-        .card-image {
-            height: 120px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        @media (min-width: 640px) {
-            .card {
-                height: 280px;
-            }
-            
-            .card-image {
-                height: 160px;
-            }
-        }
-        
-        .card-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card-body {
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .risk-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
-        }
-        
-        .risk-high {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            color: #dc2626;
-        }
-        
-        .risk-medium {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            color: #d97706;
-        }
-        
-        .risk-low {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #16a34a;
-        }
-        
-        .modal-backdrop {
-            backdrop-filter: blur(8px);
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .animate-pulse-slow {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        .animate-bounce-slow {
-            animation: bounce 3s infinite;
-        }
-        
-        .animate-spin-slow {
-            animation: spin 3s linear infinite;
-        }
-        
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .menu-item {
-            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-            color: #64748b;
-            border: 2px solid transparent;
-        }
-        
-        .menu-item.active {
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
-            color: white;
-            border-color: #0891b2;
-        }
-        
-        .menu-item:hover:not(.active) {
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-            transform: translateX(4px);
-        }
-        
-        .risk-stat-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .risk-stat-card:hover {
-            transform: translateY(-2px) scale(1.02);
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #0891b2, #06b6d4, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #0e7490, #0891b2);
-            transform: translateY(-1px);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #059669, #10b981);
-        }
-        
-        .btn-success:hover {
-            background: linear-gradient(135deg, #047857, #059669);
-            transform: translateY(-1px);
-        }
-        
-        .search-container {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .search-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.5s;
-        }
-        
-        .search-container:focus-within::before {
-            left: 100%;
-        }
-        
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        @media (max-width: 768px) {
-            .card {
-                height: auto;
-                min-height: 260px;
-            }
-            
-            .card-image {
-                height: 120px;
-            }
-            
-            body {
-                font-size: 16px;
-            }
-            
-            .card h3 {
-                font-size: 1rem !important;
-            }
-            
-            .card p {
-                font-size: 0.9rem !important;
-            }
-            
-            .card .text-xs {
-                font-size: 0.8rem !important;
-            }
-            
-            input, select, textarea {
-                font-size: 16px !important;
-            }
-            
-            button {
-                font-size: 16px !important;
-            }
-        }
-    </style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>ทะเบียนความเสี่ยง</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+
+html,body{
+margin:0;
+padding:0;
+overflow-x:hidden;
+background:#f0fdfa;
+font-family:sans-serif;
+}
+
+.card{
+transition:.25s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+}
+
+.menu-item{
+transition:.25s;
+}
+
+.menu-item.active{
+background:#0f766e;
+color:white;
+}
+
+</style>
+
 </head>
-<body class="bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 min-h-full">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header with Menu Button -->
-        <div class="text-center mb-4 animate-fade-in relative">
-            <!-- Hamburger Menu Button -->
-            <button id="menuToggle" onclick="toggleMenu()" class="absolute left-0 top-0 z-50 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 sm:p-3 hover:bg-white transition-all">
-                <i class="fas fa-bars text-teal-600 text-2xl sm:text-lg"></i>
-            </button>
-            
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 sm:p-4 w-full max-w-4xl mx-auto">
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-                    <i class="fas fa-heartbeat text-teal-600 mr-2 animate-pulse-slow"></i>
-                    <span class="gradient-text">ทะเบียนความเสี่ยง</span>
-                </h1>
-                <h2 class="text-lg sm:text-xl text-teal-700 font-medium">หน่วยไตเทียม สถาบันบำราศนราดูร</h2>
-            </div>
-        </div>
 
-        <!-- Side Menu -->
-        <div id="sideMenu" class="fixed top-0 left-0 h-full w-full sm:w-64 bg-white/95 backdrop-blur-sm shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out z-40">
-            <div class="p-6 sm:p-6 pt-24 sm:pt-20">
-                <h3 class="text-2xl sm:text-lg font-bold text-gray-800 mb-8 sm:mb-6 gradient-text text-center sm:text-left">เมนู</h3>
-                <nav class="space-y-4 sm:space-y-3">
-                    <button id="addTab" onclick="switchTab('add')" class="menu-item w-full text-left px-6 py-5 sm:px-4 sm:py-3 rounded-xl font-medium transition-all flex items-center gap-4 sm:gap-3 text-lg sm:text-base">
-                        <i class="fas fa-plus text-xl sm:text-base"></i>
-                        เพิ่มข้อมูลใหม่
-                    </button>
-                    <button id="dataTab" onclick="switchTab('data')" class="menu-item active w-full text-left px-6 py-5 sm:px-4 sm:py-3 rounded-xl font-medium transition-all flex items-center gap-4 sm:gap-3 text-lg sm:text-base">
-                        <i class="fas fa-list text-xl sm:text-base"></i>
-                        ข้อมูลทั้งหมด
-                    </button>
-                    <button id="dashboardTab" onclick="switchTab('dashboard')" class="menu-item w-full text-left px-6 py-5 sm:px-4 sm:py-3 rounded-xl font-medium transition-all flex items-center gap-4 sm:gap-3 text-lg sm:text-base">
-                        <i class="fas fa-chart-pie text-xl sm:text-base"></i>
-                        แดชบอร์ด
-                    </button>
-                </nav>
-            </div>
-        </div>
+<body>
 
-        <!-- Overlay -->
-        <div id="menuOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 hidden" onclick="closeMenu()"></div>
+<div class="w-full max-w-screen-2xl mx-auto p-3 sm:p-5">
 
-        <!-- Add Data View -->
-        <div id="addView" class="hidden">
-            <!-- Form สำหรับเพิ่ม/แก้ไขข้อมูล -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-6 mb-8 animate-fade-in">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 id="formTitle" class="text-2xl sm:text-xl font-bold gradient-text">เพิ่มข้อมูลใหม่</h2>
-                </div>
-                
-                <form id="dataFormElement" class="space-y-6">
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-    <div>
-        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-            <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 1
-        </label>
-        <input type="file" id="file1Input" accept="image/*" 
-               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
-    </div>
-    
-    <div>
-        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-            <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 2
-        </label>
-        <input type="file" id="file2Input" accept="image/*" 
-               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
-    </div>
-</div>                    
-                    <div>
-                        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                            <i class="fas fa-heading text-blue-500 mr-2"></i>หัวข้อ
-                        </label>
-                        <input type="text" id="subjectInput" required 
-                               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base"
-                               placeholder="ระบุหัวข้อความเสี่ยง">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                            <i class="fas fa-align-left text-purple-500 mr-2"></i>รายละเอียด
-                        </label>
-                        <textarea id="detailsInput" rows="4" 
-                                  class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base"
-                                  placeholder="อธิบายรายละเอียดความเสี่ยง"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                            <i class="fas fa-tools text-indigo-500 mr-2"></i>แนวทางการแก้ไข
-                        </label>
-                        <textarea id="solutionInput" rows="4" 
-                                  class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base"
-                                  placeholder="ระบุแนวทางการแก้ไขหรือป้องกัน"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                            <i class="fas fa-user text-green-500 mr-2"></i>ผู้รายงาน
-                        </label>
-                        <input type="text" id="reporterInput" required 
-                               class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base"
-                               placeholder="ชื่อผู้รายงาน">
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                                <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟล์ 1
-                            </label>
-                            <input type="file" id="file1Input" accept="image/*" 
-                                   class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-lg sm:text-sm font-medium text-gray-700 mb-3">
-                                <i class="fas fa-image text-pink-500 mr-2"></i>แนบไฟل์ 2
-                            </label>
-                            <input type="file" id="file2Input" accept="image/*" 
-                                   class="w-full px-4 py-4 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-lg sm:text-base">
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                        <button type="submit" id="submitBtn"
-                                class="btn-primary text-white px-8 py-4 sm:px-6 sm:py-2 rounded-lg transition-all shadow-lg text-lg sm:text-base font-medium">
-                            <i class="fas fa-save mr-2 animate-float"></i>บันทึก
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="flex justify-between items-center mb-5">
 
-        <!-- Data View -->
-        <div id="dataView">
-            <!-- Control Panel -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8 animate-fade-in">
-                <div class="flex justify-center">
-                    <!-- Search -->
-                    <div class="relative w-full max-w-md search-container">
-                        <input type="text" id="searchInput" placeholder="ค้นหาจากหัวข้อ หมวดหมู่ หรือรายละเอียด..." 
-                               class="pl-12 pr-4 py-3 border-2 border-teal-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-full bg-white/90 backdrop-blur-sm transition-all text-base">
-                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-teal-400"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Cards Grid -->
-            <div id="dataCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-6 lg:gap-8 w-full max-w-sm sm:max-w-none mx-auto sm:mx-0" style="max-width: 85vw;">
-                <!-- Loading State -->
-                <div class="col-span-full flex justify-center items-center py-16">
-                    <div class="text-center">
-                        <i class="fas fa-spinner fa-spin text-4xl text-teal-500 mb-4"></i>
-                        <p class="text-gray-600">กำลังโหลดข้อมูล...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<h1 class="text-xl sm:text-3xl font-bold text-teal-700">
+ทะเบียนความเสี่ยง
+</h1>
 
-        <!-- Dashboard View -->
-        <div id="dashboardView" class="hidden">
-            <!-- Dashboard Controls -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-6 mb-8 animate-fade-in">
-                <div class="flex flex-wrap gap-2 sm:gap-4 justify-center items-center">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-calendar-alt text-teal-500"></i>
-                        <select id="monthFilter" class="px-3 py-2 border-2 border-teal-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/90 backdrop-blur-sm transition-all text-sm sm:text-base">
-                            <option value="">ทุกเดือน</option>
-                            <option value="01">มกราคม</option>
-                            <option value="02">กุมภาพันธ์</option>
-                            <option value="03">มีนาคม</option>
-                            <option value="04">เมษายน</option>
-                            <option value="05">พฤษภาคม</option>
-                            <option value="06">มิถุนายน</option>
-                            <option value="07">กรกฎาคม</option>
-                            <option value="08">สิงหาคม</option>
-                            <option value="09">กันยายน</option>
-                            <option value="10">ตุลาคม</option>
-                            <option value="11">พฤศจิกายน</option>
-                            <option value="12">ธันวาคม</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-calendar text-teal-500"></i>
-                        <select id="yearFilter" class="px-3 py-2 border-2 border-teal-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/90 backdrop-blur-sm transition-all text-sm sm:text-base">
-                            <option value="">ทุกปี</option>
-                        </select>
-                    </div>
-                    
-                    <button onclick="updateDashboard()" class="btn-primary text-white px-3 sm:px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg text-sm sm:text-base">
-                        <i class="fas fa-filter"></i>
-                        กรองข้อมูล
-                    </button>
-                </div>
-            </div>
+<button onclick="switchTab('add')"
+class="bg-teal-600 text-white px-4 py-2 rounded-xl">
 
-            <!-- Risk Level Statistics Cards -->
-            <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 sm:gap-4 mb-8" id="riskStatsCards">
-                <!-- Risk cards will be generated here -->
-            </div>
+<i class="fas fa-plus"></i>
 
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Reporter Chart -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 animate-fade-in">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-users text-teal-500 mr-2"></i>
-                        สัดส่วนผู้รายงาน
-                    </h3>
-                    <div class="flex justify-center">
-                        <div class="w-full max-w-xs sm:max-w-sm">
-                            <canvas id="reporterChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+เพิ่มข้อมูล
 
-                <!-- Risk Level Chart -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 animate-fade-in">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
-                        สัดส่วนระดับความเสี่ยง
-                    </h3>
-                    <div class="flex justify-center">
-                        <div class="w-full max-w-xs sm:max-w-sm">
-                            <canvas id="riskChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+</button>
 
+</div>
 
-    </div>
+<!-- FORM -->
 
+<div id="addView" class="hidden bg-white rounded-2xl shadow p-4 sm:p-6 mb-5">
 
+<h2 class="text-xl font-bold mb-5 text-teal-700">
+เพิ่มข้อมูล
+</h2>
 
-    <!-- Modal สำหรับดูรายละเอียด -->
-    <div id="detailModal" class="fixed inset-0 bg-black/50 modal-backdrop hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-full overflow-y-auto animate-fade-in">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-xl font-bold gradient-text">รายละเอียดความเสี่ยง</h2>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div id="detailContent" class="p-6">
-                <!-- เนื้อหาจะถูกเพิ่มด้วย JavaScript -->
-            </div>
-        </div>
-    </div>
+<form id="dataFormElement" class="space-y-4">
 
-    <script>
-        // ตัวแปรสำหรับจัดการข้อมูล
-        let allData = [];
-        let currentEditId = null;
-        let currentEditData = null;
-        let isSubmitting = false;
-        let reporterChart = null;
-        let riskChart = null;
-        
-        // URL ของ Google Apps Script
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuZXpealGoAtm5c129us9TyqD4Kww5KOJ_BYUvzy1aXGQw_eqRNVekL15A8W9mz8tL/exec';
-        
-        // สีพาสเทลสำหรับกราฟ
-        const pastelColors = [
-            '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
-            '#E1BAFF', '#FFBAE1', '#C9FFBA', '#BADFFF', '#FFCBA4',
-            '#D4BAFF', '#BAFFE1', '#FFE1BA', '#E1FFBA', '#BAC9FF'
-        ];
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        // ฟังก์ชันแปลงไฟล์เป็น Base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
+<div>
 
-        // ฟังก์ชันเปิด/ปิดเมนู
-        function toggleMenu() {
-            const sideMenu = document.getElementById('sideMenu');
-            const menuOverlay = document.getElementById('menuOverlay');
-            
-            sideMenu.classList.toggle('-translate-x-full');
-            menuOverlay.classList.toggle('hidden');
-        }
-        
-        function closeMenu() {
-            const sideMenu = document.getElementById('sideMenu');
-            const menuOverlay = document.getElementById('menuOverlay');
-            
-            sideMenu.classList.add('-translate-x-full');
-            menuOverlay.classList.add('hidden');
-        }
+<label>วันที่</label>
 
-function switchTab(tab, isEdit = false) {
-    document.getElementById('addTab').classList.remove('active');
-    document.getElementById('dataTab').classList.remove('active');
-    document.getElementById('dashboardTab').classList.remove('active');
-    
-    document.getElementById('addView').classList.add('hidden');
-    document.getElementById('dataView').classList.add('hidden');
-    document.getElementById('dashboardView').classList.add('hidden');
-    
-    if (tab === 'add') {
-        document.getElementById('addTab').classList.add('active');
-        document.getElementById('addView').classList.remove('hidden');
-        
-        // ถ้าไม่ได้อยู่ในโหมดแก้ไข ให้ล้างฟอร์ม
-        if (!isEdit) {
-            currentEditId = null;
-            currentEditData = null;
-            document.getElementById('formTitle').textContent = 'เพิ่มข้อมูลใหม่';
-            document.getElementById('dataFormElement').reset();
-            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-        }
-    } else if (tab === 'data') {
-        document.getElementById('dataTab').classList.add('active');
-        document.getElementById('dataView').classList.remove('hidden');
-    } else if (tab === 'dashboard') {
-        document.getElementById('dashboardTab').classList.add('active');
-        document.getElementById('dashboardView').classList.remove('hidden');
-        initializeDashboard();
-    }
-    
-    closeMenu();
-}
-        
-        // เริ่มต้นแดชบอร์ด
-        function initializeDashboard() {
-            populateYearFilter();
-            updateDashboard();
-        }
-        
-        // เติมข้อมูลปีในตัวกรอง
-        function populateYearFilter() {
-            const yearFilter = document.getElementById('yearFilter');
-            const years = [...new Set(allData.map(item => new Date(item.date).getFullYear()))].sort((a, b) => b - a);
-            
-            yearFilter.innerHTML = '<option value="">ทุกปี</option>';
-            years.forEach(year => {
-                yearFilter.innerHTML += `<option value="${year}">${year + 543}</option>`;
-            });
-        }
-        
-        // อัปเดตแดชบอร์ด
-        function updateDashboard() {
-            const selectedMonth = document.getElementById('monthFilter').value;
-            const selectedYear = document.getElementById('yearFilter').value;
-            
-            // กรองข้อมูลตามเดือนและปี
-            let filteredData = allData;
-            
-            if (selectedMonth || selectedYear) {
-                filteredData = allData.filter(item => {
-                    const itemDate = new Date(item.date);
-                    const itemMonth = String(itemDate.getMonth() + 1).padStart(2, '0');
-                    const itemYear = itemDate.getFullYear();
-                    
-                    let matchMonth = !selectedMonth || itemMonth === selectedMonth;
-                    let matchYear = !selectedYear || itemYear == selectedYear;
-                    
-                    return matchMonth && matchYear;
-                });
-            }
-            
-            updateRiskStatsCards(filteredData);
-            updateCharts(filteredData);
-        }
-        
-        // อัปเดตการ์ดสถิติความเสี่ยง
-        function updateRiskStatsCards(data) {
-            const riskLevels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-            const riskCounts = {};
-            
-            // สีพาสเทลอ่อนสำหรับแต่ละระดับ
-            const pastelBackgrounds = {
-                'A': 'bg-gradient-to-br from-emerald-50 to-emerald-100',
-                'B': 'bg-gradient-to-br from-green-50 to-green-100',
-                'C': 'bg-gradient-to-br from-lime-50 to-lime-100',
-                'D': 'bg-gradient-to-br from-yellow-50 to-yellow-100',
-                'E': 'bg-gradient-to-br from-amber-50 to-amber-100',
-                'F': 'bg-gradient-to-br from-orange-50 to-orange-100',
-                'G': 'bg-gradient-to-br from-red-50 to-red-100',
-                'H': 'bg-gradient-to-br from-rose-50 to-rose-100',
-                'I': 'bg-gradient-to-br from-pink-50 to-pink-100'
-            };
-            
-            const pastelTextColors = {
-                'A': 'text-emerald-700',
-                'B': 'text-green-700',
-                'C': 'text-lime-700',
-                'D': 'text-yellow-700',
-                'E': 'text-amber-700',
-                'F': 'text-orange-700',
-                'G': 'text-red-700',
-                'H': 'text-rose-700',
-                'I': 'text-pink-700'
-            };
-            
-            // นับจำนวนแต่ละระดับความเสี่ยง
-            riskLevels.forEach(level => {
-                riskCounts[level] = data.filter(item => item.riskLevel === level).length;
-            });
-            
-            const container = document.getElementById('riskStatsCards');
-            let cardsHTML = '';
-            
-            // สร้างการ์ดสำหรับทุกระดับความเสี่ยง A-I
-            riskLevels.forEach(level => {
-                const count = riskCounts[level];
-                const bgClass = pastelBackgrounds[level];
-                const textClass = pastelTextColors[level];
-                
-                cardsHTML += `
-                    <div class="risk-stat-card ${bgClass} backdrop-blur-sm rounded-2xl shadow-md hover:shadow-lg p-3 sm:p-4 text-center animate-fade-in border border-white/30 transition-all duration-300">
-                        <div class="text-xs sm:text-sm mb-2 font-semibold ${textClass}">ระดับความเสี่ยง ${level}</div>
-                        <div class="text-2xl sm:text-3xl font-bold mb-1 ${textClass}">${count}</div>
-                        <div class="text-xs ${textClass} opacity-80">รายการ</div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = cardsHTML;
-        }
-        
-        // อัปเดตกราฟ
-        function updateCharts(data) {
-            updateReporterChart(data);
-            updateRiskChart(data);
-        }
-        
-        // อัปเดตกราฟผู้รายงาน
-        function updateReporterChart(data) {
-            const reporterCounts = {};
-            data.forEach(item => {
-                reporterCounts[item.reporter] = (reporterCounts[item.reporter] || 0) + 1;
-            });
-            
-            const labels = Object.keys(reporterCounts);
-            const values = Object.values(reporterCounts);
-            const colors = labels.map((_, index) => pastelColors[index % pastelColors.length]);
-            
-            const ctx = document.getElementById('reporterChart').getContext('2d');
-            
-            if (reporterChart) {
-                reporterChart.destroy();
-            }
-            
-            reporterChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderColor: colors.map(color => color.replace('0.8', '1')),
-                        borderWidth: 2,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                usePointStyle: true,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return `${context.label}: ${context.parsed} รายการ (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // อัปเดตกราฟระดับความเสี่ยง
-        function updateRiskChart(data) {
-            const riskCounts = {};
-            const riskLevels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-            
-            riskLevels.forEach(level => {
-                const count = data.filter(item => item.riskLevel === level).length;
-                if (count > 0) {
-                    riskCounts[level] = count;
-                }
-            });
-            
-            const labels = Object.keys(riskCounts);
-            const values = Object.values(riskCounts);
-            const colors = labels.map(level => {
-                switch (level) {
-                    case 'A': return '#10b981'; // เขียวมรกต
-                    case 'B': return '#84cc16'; // เขียวมะนาว
-                    case 'C': return '#06b6d4'; // ฟ้าอมเขียว
-                    case 'D': return '#0ea5e9'; // ฟ้าใส
-                    case 'E': return '#6366f1'; // น้ำเงินม่วง
-                    case 'F': return '#8b5cf6'; // ม่วงแดง
-                    case 'G': return '#f59e0b'; // เหลืองส้ม
-                    case 'H': return '#f97316'; // ส้มแดง
-                    case 'I': return '#ef4444'; // แดงเข้ม
-                    default: return '#6b7280';
-                }
-            });
-            
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            
-            if (riskChart) {
-                riskChart.destroy();
-            }
-            
-            riskChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderColor: colors.map(color => color + '80'),
-                        borderWidth: 2,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                usePointStyle: true,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return `ระดับ ${context.label}: ${context.parsed} รายการ (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // ฟังก์ชันช่วยเหลือสำหรับสีข้อความ
-        function getTextColor(riskLevel) {
-            switch (riskLevel) {
-                case 'A':
-                case 'B':
-                case 'C': return 'text-green-600';
-                case 'D':
-                case 'E':
-                case 'F': return 'text-orange-600';
-                case 'G':
-                case 'H':
-                case 'I': return 'text-red-600';
-                default: return 'text-gray-600';
-            }
-        }
+<input type="date"
+id="dateInput"
+class="w-full border-2 rounded-xl p-3">
 
-        // โหลดข้อมูลจาก Google Sheets
-        async function loadData() {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getData`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    allData = result.data;
-                    displayCards(allData);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'โหลดข้อมูลสำเร็จ',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อ',
-                    confirmButtonColor: '#0891b2'
-                });
-                displayCards([]);
-            }
-        }
+</div>
 
-        // แสดงข้อมูลในรูปแบบการ์ด
-        function displayCards(data) {
-            const container = document.getElementById('dataCardsContainer');
-            
-            if (data.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full flex flex-col justify-center items-center py-16">
-                        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg">ไม่มีข้อมูล</p>
-                        <p class="text-gray-400 text-sm">เพิ่มข้อมูลใหม่เพื่อเริ่มต้นใช้งาน</p>
-                    </div>
-                `;
-                return;
-            }
+<div>
 
-            // เรียงข้อมูลจากล่างขึ้นบน (รายการล่าสุดขึ้นบนสุด)
-            const sortedData = [...data].reverse();
+<label>แผนก</label>
 
-            container.innerHTML = sortedData.map(item => `
-                <div class="card bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer animate-fade-in hover:shadow-xl transition-all duration-300" 
-                     onclick="viewDetail('${item.id}')">
-                    <div class="card-image relative">
-                        ${item.file1 ? 
-                            `<img src="${item.file1}" alt="รูปภาพ" class="w-full h-full object-cover">` :
-                            `<div class="w-full h-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center">
-                                <i class="fas fa-image text-white text-4xl opacity-50"></i>
-                            </div>`
-                        }
-                        <div class="absolute top-3 right-3">
-                            <span class="risk-badge ${getRiskClass(item.riskLevel)}">
-                                ${item.riskLevel}
-                            </span>
-                        </div>
-                        
-                        <!-- Action Buttons on Image -->
-                        <div class="absolute top-3 left-3 flex gap-1">
-                            <button onclick="event.stopPropagation(); editData('${item.id}')" 
-                                    class="bg-white/90 backdrop-blur-sm text-teal-600 hover:bg-white hover:text-teal-800 transition-all p-2 rounded-lg shadow-md">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                            <button onclick="event.stopPropagation(); deleteData('${item.id}')" 
-                                    class="bg-white/90 backdrop-blur-sm text-red-600 hover:bg-white hover:text-red-800 transition-all p-2 rounded-lg shadow-md">
-                                <i class="fas fa-trash text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="card-content p-4">
-                        <div class="card-body">
-                            <h3 class="font-bold text-gray-800 text-sm sm:text-base mb-2 line-clamp-2">${item.subject}</h3>
-                            <p class="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-3">${truncateText(item.details || 'ไม่มีรายละเอียด', 120)}</p>
-                        </div>
-                        
-                        <div class="flex justify-between items-center pt-2 border-t border-gray-100">
-                            <div class="flex items-center text-gray-500 text-xs">
-                                <i class="fas fa-user mr-1"></i>
-                                <span class="truncate max-w-20 sm:max-w-none">${item.reporter}</span>
-                            </div>
-                            <div class="flex items-center text-gray-500 text-xs">
-                                <i class="fas fa-calendar mr-1"></i>
-                                <span class="text-xs">${formatDate(item.date)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
+<select id="departmentInput"
+class="w-full border-2 rounded-xl p-3">
 
-        // ฟังก์ชันช่วยเหลือ
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('th-TH');
-        }
+<option value="">เลือกแผนก</option>
 
-        function getRiskClass(riskLevel) {
-            switch (riskLevel) {
-                case 'A':
-                case 'B':
-                case 'C': return 'risk-low';
-                case 'D':
-                case 'E':
-                case 'F': return 'risk-medium';
-                case 'G':
-                case 'H':
-                case 'I': return 'risk-high';
-                default: return 'risk-medium';
-            }
-        }
+<option>ไตเทียม 4/2</option>
 
-        function truncateText(text, maxLength = 100) {
-            if (!text) return '';
-            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-        }
+<option>ไตเทียม 5/1</option>
 
+<option>ไตเทียม 5/2</option>
 
+</select>
 
-// แก้ไขข้อมูล
-function editData(id) {
-    const item = allData.find(d => String(d.id) === String(id));
-    if (!item) return;
+</div>
 
-    // สลับไปหน้าฟอร์ม โหมดแก้ไข
-    switchTab('add', true);
+<div>
 
-    currentEditId = id;
-    currentEditData = item;
-    
-    document.getElementById('formTitle').textContent = 'แก้ไขข้อมูล';
-    
-    // จัดการวันที่
-    let dateValue = '';
-    if (item.date) {
-        try {
-            const d = new Date(item.date);
-            if (!isNaN(d.getTime())) {
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                dateValue = `${year}-${month}-${day}`;
-            }
-        } catch(e) {}
-    }
-    document.getElementById('dateInput').value = dateValue;
-    
-    document.getElementById('subjectInput').value = item.subject || '';
-    document.getElementById('riskLevelInput').value = item.riskLevel || '';
-    document.getElementById('detailsInput').value = item.details || '';
-    document.getElementById('solutionInput').value = item.solution || '';
-    document.getElementById('reporterInput').value = item.reporter || '';
+<label>ระดับความเสี่ยง</label>
 
-    // ล้างค่าไฟล์เดิมใน input (เพื่อให้แน่ใจว่ามันว่างเปล่าพร้อมให้เลือกใหม่)
-    document.getElementById('file1Input').value = '';
-    document.getElementById('file2Input').value = '';
+<select id="riskLevelInput"
+class="w-full border-2 rounded-xl p-3">
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+<option value="">เลือกระดับ</option>
+
+<option>A</option>
+<option>B</option>
+<option>C</option>
+<option>D</option>
+<option>E</option>
+<option>F</option>
+<option>G</option>
+<option>H</option>
+<option>I</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div>
+
+<label>หัวข้อ</label>
+
+<input type="text"
+id="subjectInput"
+class="w-full border-2 rounded-xl p-3">
+
+</div>
+
+<div>
+
+<label>รายละเอียด</label>
+
+<textarea
+id="detailsInput"
+rows="4"
+class="w-full border-2 rounded-xl p-3"></textarea>
+
+</div>
+
+<div>
+
+<label>แนวทางแก้ไข</label>
+
+<textarea
+id="solutionInput"
+rows="4"
+class="w-full border-2 rounded-xl p-3"></textarea>
+
+</div>
+
+<div>
+
+<label>ผู้รายงาน</label>
+
+<input type="text"
+id="reporterInput"
+class="w-full border-2 rounded-xl p-3">
+
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+<div>
+
+<label>รูปภาพ 1</label>
+
+<input type="file"
+id="file1Input"
+accept="image/*"
+class="w-full border-2 rounded-xl p-3">
+
+</div>
+
+<div>
+
+<label>รูปภาพ 2</label>
+
+<input type="file"
+id="file2Input"
+accept="image/*"
+class="w-full border-2 rounded-xl p-3">
+
+</div>
+
+</div>
+
+<div class="pt-3">
+
+<button type="submit"
+class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl">
+
+บันทึกข้อมูล
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<!-- DATA -->
+
+<div id="dataView">
+
+<div class="mb-5">
+
+<input type="text"
+id="searchInput"
+placeholder="ค้นหา..."
+class="w-full border-2 rounded-2xl p-4">
+
+</div>
+
+<div id="dataCardsContainer"
+class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbwuZXpealGoAtm5c129us9TyqD4Kww5KOJ_BYUvzy1aXGQw_eqRNVekL15A8W9mz8tL/exec';
+
+let allData = [];
+
+let currentEditId = null;
+
+async function fileToBase64(file){
+
+return new Promise((resolve,reject)=>{
+
+const reader = new FileReader();
+
+reader.readAsDataURL(file);
+
+reader.onload=()=>resolve(reader.result);
+
+reader.onerror=error=>reject(error);
+
+});
+
 }
 
-        // ดูรายละเอียด
-        function viewDetail(id) {
-            const item = allData.find(d => d.id === id);
-            if (!item) return;
+function switchTab(tab){
 
-            const content = document.getElementById('detailContent');
-            content.innerHTML = `
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded-xl">
-                            <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                                <i class="fas fa-calendar-alt text-teal-500 mr-2"></i>วันที่
-                            </h3>
-                            <p class="text-gray-900">${formatDate(item.date)}</p>
-                        </div>
-                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl">
-                            <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                                <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>ระดับความเสี่ยง
-                            </h3>
-                            <span class="risk-badge ${getRiskClass(item.riskLevel)}">${item.riskLevel}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
-                        <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-heading text-blue-500 mr-2"></i>หัวข้อ
-                        </h3>
-                        <p class="text-gray-900 text-lg">${item.subject}</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl">
-                        <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-align-left text-purple-500 mr-2"></i>รายละเอียด
-                        </h3>
-                        <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">${item.details || 'ไม่มีรายละเอียด'}</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-xl">
-                        <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-tools text-indigo-500 mr-2"></i>แนวทางการแก้ไข
-                        </h3>
-                        <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">${item.solution || 'ไม่มีแนวทางการแก้ไข'}</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl">
-                        <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-user text-green-500 mr-2"></i>ผู้รายงาน
-                        </h3>
-                        <p class="text-gray-900">${item.reporter}</p>
-                    </div>
-                    
-                    ${(item.file1 || item.file2) ? `
-                        <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-xl">
-                            <h3 class="font-semibold text-gray-700 mb-4 flex items-center">
-                                <i class="fas fa-images text-pink-500 mr-2"></i>ไฟล์แนบ
-                            </h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                ${item.file1 ? `
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 mb-2">ไฟล์ 1</p>
-                                        <img src="${item.file1}" alt="ไฟล์ 1" 
-                                             class="w-full h-48 object-cover rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow" 
-                                             onclick="openImageModal('${item.file1}')">
-                                    </div>
-                                ` : ''}
-                                ${item.file2 ? `
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 mb-2">ไฟล์ 2</p>
-                                        <img src="${item.file2}" alt="ไฟล์ 2" 
-                                             class="w-full h-48 object-cover rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow" 
-                                             onclick="openImageModal('${item.file2}')">
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
+document
+.getElementById('addView')
+.classList.add('hidden');
 
-        // ลบข้อมูล
-        async function deleteData(id) {
-            const result = await Swal.fire({
-                title: 'ยืนยันการลบ',
-                text: 'คุณต้องการลบข้อมูลนี้หรือไม่?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'ลบ',
-                cancelButtonText: 'ยกเลิก'
-            });
+document
+.getElementById('dataView')
+.classList.add('hidden');
 
-            if (!result.isConfirmed) return;
+if(tab==='add'){
 
-            try {
-                Swal.fire({
-                    title: 'กำลังลบข้อมูล...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+document
+.getElementById('addView')
+.classList.remove('hidden');
 
-                const formData = new FormData();
-                formData.append('action', 'deleteData');
-                formData.append('id', id);
+}else{
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
+document
+.getElementById('dataView')
+.classList.remove('hidden');
 
-                const result = await response.json();
+}
 
-                if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ลบข้อมูลสำเร็จ',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                    loadData();
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (error) {
-                console.error('Error deleting data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถลบข้อมูลได้',
-                    confirmButtonColor: '#0891b2'
-                });
-            }
-        }
+}
 
+async function loadData(){
 
+const response =
+await fetch(`${SCRIPT_URL}?action=getData`);
 
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
+const result = await response.json();
 
-        // เปิดรูปภาพขนาดเต็ม
-        function openImageModal(imageUrl) {
-            Swal.fire({
-                imageUrl: imageUrl,
-                imageAlt: 'รูปภาพ',
-                showConfirmButton: false,
-                showCloseButton: true,
-                width: 'auto',
-                padding: '1rem',
-                background: 'rgba(0,0,0,0.9)',
-                backdrop: 'rgba(0,0,0,0.8)'
-            });
-        }
+allData = result.data || [];
 
-        // จัดการการส่งฟอร์ม
-        document.getElementById('dataFormElement').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (isSubmitting) return;
-            
-            const date = document.getElementById('dateInput').value;
-            const subject = document.getElementById('subjectInput').value;
-            const riskLevel = document.getElementById('riskLevelInput').value;
-            const details = document.getElementById('detailsInput').value;
-            const solution = document.getElementById('solutionInput').value;
-            const reporter = document.getElementById('reporterInput').value;
-            const file1Input = document.getElementById('file1Input');
-            const file2Input = document.getElementById('file2Input');
+displayCards(allData);
 
-            if (!date || !subject || !riskLevel || !reporter) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ครบถ้วน',
-                    text: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน',
-                    confirmButtonColor: '#0891b2'
-                });
-                return;
-            }
+}
 
-            const isEdit = currentEditId !== null;
-            isSubmitting = true;
+function displayCards(data){
 
-            // แสดง Loading
-            Swal.fire({
-                title: isEdit ? 'กำลังแก้ไขข้อมูล...' : 'กำลังบันทึกข้อมูล...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+const container =
+document.getElementById('dataCardsContainer');
 
-            try {
-                // เตรียมข้อมูลสำหรับส่ง
-                const formData = new FormData();
-                formData.append('action', isEdit ? 'updateData' : 'addData');
-                formData.append('date', date);
-                formData.append('subject', subject);
-                formData.append('riskLevel', riskLevel);
-                formData.append('details', details);
-                formData.append('solution', solution);
-                formData.append('reporter', reporter);
-                
-                if (isEdit) {
-                    formData.append('id', currentEditId);
-                    formData.append('createdAt', currentEditData.createdAt);
-                    formData.append('existingFile1', currentEditData.file1 || '');
-                    formData.append('existingFile2', currentEditData.file2 || '');
-                }
-                
-                // แปลงไฟล์เป็น Base64
-                if (file1Input.files[0]) {
-                    const file1Base64 = await fileToBase64(file1Input.files[0]);
-                    formData.append('file1', file1Base64);
-                    formData.append('file1Name', file1Input.files[0].name);
-                }
-                if (file2Input.files[0]) {
-                    const file2Base64 = await fileToBase64(file2Input.files[0]);
-                    formData.append('file2', file2Base64);
-                    formData.append('file2Name', file2Input.files[0].name);
-                }
+if(data.length===0){
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
+container.innerHTML = `
+<div class="col-span-full text-center py-10">
+ไม่มีข้อมูล
+</div>
+`;
 
-                const result = await response.json();
+return;
 
-                if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: isEdit ? 'แก้ไขข้อมูลสำเร็จ!' : 'บันทึกข้อมูลสำเร็จ!',
-                        text: 'ข้อมูลได้รับการบันทึกเรียบร้อยแล้ว',
-                        confirmButtonColor: '#0891b2',
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                    // กลับไปหน้าข้อมูลทั้งหมดหลังบันทึกสำเร็จ
-                    switchTab('data');
-                    loadData();
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (error) {
-                console.error('Error saving data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonColor: '#0891b2'
-                });
-            } finally {
-                isSubmitting = false;
-            }
-        });
+}
 
-        // ค้นหาข้อมูล
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredData = allData.filter(item => 
-                item.subject.toLowerCase().includes(searchTerm) ||
-                item.details.toLowerCase().includes(searchTerm) ||
-                (item.solution && item.solution.toLowerCase().includes(searchTerm)) ||
-                item.reporter.toLowerCase().includes(searchTerm) ||
-                item.riskLevel.toLowerCase().includes(searchTerm)
-            );
-            displayCards(filteredData);
-        });
+container.innerHTML =
+[...data].reverse().map(item=>`
 
-        // โหลดข้อมูลเมื่อเริ่มต้น
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-        });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9da56ca6716345ab',t:'MTc3MzE3ODI2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<div class="card bg-white rounded-2xl shadow overflow-hidden">
+
+${item.file1 ?
+
+`<img src="${item.file1}"
+class="w-full h-48 object-cover">`
+
+:
+
+`<div class="w-full h-48 bg-teal-100"></div>`
+
+}
+
+<div class="p-4 space-y-2">
+
+<div class="flex justify-between items-center">
+
+<div class="text-xs bg-teal-100 text-teal-700 px-3 py-1 rounded-full">
+${item.department || '-'}
+</div>
+
+<div class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">
+${item.riskLevel}
+</div>
+
+</div>
+
+<h3 class="font-bold text-lg">
+${item.subject || '-'}
+</h3>
+
+<p class="text-sm text-gray-600 line-clamp-3">
+${item.details || '-'}
+</p>
+
+<div class="flex justify-between items-center pt-2">
+
+<div class="text-xs text-gray-500">
+${item.reporter || '-'}
+</div>
+
+<div class="text-xs text-gray-500">
+${formatDate(item.date)}
+</div>
+
+</div>
+
+<div class="flex gap-2 pt-3">
+
+<button
+onclick="editData('${item.id}')"
+class="flex-1 bg-blue-500 text-white py-2 rounded-xl">
+
+แก้ไข
+
+</button>
+
+<button
+onclick="deleteData('${item.id}')"
+class="flex-1 bg-red-500 text-white py-2 rounded-xl">
+
+ลบ
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`).join('');
+
+}
+
+function formatDate(date){
+
+if(!date) return '';
+
+return new Date(date)
+.toLocaleDateString('th-TH');
+
+}
+
+function editData(id){
+
+const item =
+allData.find(d=>String(d.id)===String(id));
+
+if(!item) return;
+
+currentEditId = id;
+
+switchTab('add');
+
+document.getElementById('dateInput').value =
+item.date;
+
+document.getElementById('departmentInput').value =
+item.department || '';
+
+document.getElementById('subjectInput').value =
+item.subject || '';
+
+document.getElementById('riskLevelInput').value =
+item.riskLevel || '';
+
+document.getElementById('detailsInput').value =
+item.details || '';
+
+document.getElementById('solutionInput').value =
+item.solution || '';
+
+document.getElementById('reporterInput').value =
+item.reporter || '';
+
+}
+
+async function deleteData(id){
+
+const confirm =
+await Swal.fire({
+title:'ลบข้อมูล?',
+icon:'warning',
+showCancelButton:true
+});
+
+if(!confirm.isConfirmed) return;
+
+const formData = new FormData();
+
+formData.append('action','deleteData');
+
+formData.append('id',id);
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+body:formData
+});
+
+loadData();
+
+}
+
+document
+.getElementById('dataFormElement')
+.addEventListener('submit',async function(e){
+
+e.preventDefault();
+
+const formData = new FormData();
+
+formData.append(
+'action',
+currentEditId ? 'updateData':'addData'
+);
+
+if(currentEditId){
+
+formData.append('id',currentEditId);
+
+}
+
+formData.append(
+'date',
+document.getElementById('dateInput').value
+);
+
+formData.append(
+'department',
+document.getElementById('departmentInput').value
+);
+
+formData.append(
+'subject',
+document.getElementById('subjectInput').value
+);
+
+formData.append(
+'riskLevel',
+document.getElementById('riskLevelInput').value
+);
+
+formData.append(
+'details',
+document.getElementById('detailsInput').value
+);
+
+formData.append(
+'solution',
+document.getElementById('solutionInput').value
+);
+
+formData.append(
+'reporter',
+document.getElementById('reporterInput').value
+);
+
+const file1 =
+document.getElementById('file1Input').files[0];
+
+const file2 =
+document.getElementById('file2Input').files[0];
+
+if(file1){
+
+formData.append(
+'file1',
+await fileToBase64(file1)
+);
+
+formData.append(
+'file1Name',
+file1.name
+);
+
+}
+
+if(file2){
+
+formData.append(
+'file2',
+await fileToBase64(file2)
+);
+
+formData.append(
+'file2Name',
+file2.name
+);
+
+}
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+body:formData
+});
+
+Swal.fire({
+icon:'success',
+title:'บันทึกสำเร็จ',
+timer:1500,
+showConfirmButton:false
+});
+
+currentEditId = null;
+
+document
+.getElementById('dataFormElement')
+.reset();
+
+switchTab('data');
+
+loadData();
+
+});
+
+document
+.getElementById('searchInput')
+.addEventListener('input',function(e){
+
+const keyword =
+e.target.value.toLowerCase();
+
+const filtered =
+allData.filter(item=>
+
+(item.subject || '')
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.details || '')
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.department || '')
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.reporter || '')
+.toLowerCase()
+.includes(keyword)
+
+);
+
+displayCards(filtered);
+
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+
+document.getElementById('dateInput').value =
+new Date().toISOString().split('T')[0];
+
+loadData();
+
+});
+
+</script>
+
+</body>
 </html>
