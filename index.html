@@ -1,526 +1,849 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>ทะเบียนความเสี่ยง หน่วยไตเทียม</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      font-family:'Kanit',sans-serif;
-    }
-
-    body{
-      background:#f4f7fb;
-      padding:15px;
-      color:#333;
-    }
-
-    .container{
-      max-width:1200px;
-      margin:auto;
-    }
-
-    .card{
-      background:#fff;
-      border-radius:20px;
-      padding:20px;
-      box-shadow:0 4px 12px rgba(0,0,0,.08);
-      margin-bottom:20px;
-    }
-
-    h1{
-      text-align:center;
-      margin-bottom:20px;
-      color:#0d47a1;
-      font-size:28px;
-    }
-
-    h2{
-      margin-bottom:15px;
-      color:#1565c0;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:15px;
-    }
-
-    .form-group{
-      margin-bottom:15px;
-    }
-
-    label{
-      font-weight:600;
-      display:block;
-      margin-bottom:6px;
-    }
-
-    input, textarea, select{
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      font-size:15px;
-    }
-
-    textarea{
-      min-height:100px;
-      resize:vertical;
-    }
-
-    .btn{
-      border:none;
-      padding:12px 18px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:15px;
-      font-weight:600;
-      transition:.2s;
-    }
-
-    .btn-primary{
-      background:#1565c0;
-      color:#fff;
-    }
-
-    .btn-primary:hover{
-      background:#0d47a1;
-    }
-
-    .btn-warning{
-      background:#ff9800;
-      color:#fff;
-    }
-
-    .btn-danger{
-      background:#e53935;
-      color:#fff;
-    }
-
-    .btn-success{
-      background:#2e7d32;
-      color:#fff;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:15px;
-    }
-
-    th, td{
-      padding:12px;
-      border-bottom:1px solid #ddd;
-      text-align:left;
-      vertical-align:top;
-    }
-
-    th{
-      background:#1565c0;
-      color:#fff;
-      position:sticky;
-      top:0;
-    }
-
-    tr:hover{
-      background:#f5f5f5;
-    }
-
-    .risk-badge{
-      padding:5px 10px;
-      border-radius:20px;
-      color:#fff;
-      font-size:13px;
-      font-weight:bold;
-      display:inline-block;
-    }
-
-    .A{background:#2e7d32;}
-    .B{background:#43a047;}
-    .C{background:#f9a825;}
-    .D{background:#fb8c00;}
-    .E{background:#ef6c00;}
-    .F{background:#e53935;}
-    .G{background:#c62828;}
-    .H{background:#8e0000;}
-    .I{background:#4a148c;}
-
-    img.preview{
-      width:80px;
-      height:80px;
-      object-fit:cover;
-      border-radius:10px;
-      border:1px solid #ccc;
-    }
-
-    .actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .table-responsive{
-      overflow:auto;
-    }
-
-    .loading{
-      display:none;
-      text-align:center;
-      margin-top:10px;
-      color:#1565c0;
-      font-weight:bold;
-    }
-
-    .level-box{
-      background:#f1f8ff;
-      padding:15px;
-      border-radius:15px;
-      margin-bottom:20px;
-      border:1px solid #bbdefb;
-    }
-
-    .level-box ul{
-      padding-left:20px;
-      margin-top:10px;
-    }
-
-    @media(max-width:768px){
-      table{
-        font-size:13px;
-      }
-
-      th,td{
-        padding:8px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทะเบียนความเสี่ยง หน่วยไตเทียม สถาบันบำราศนราดูร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        
+        .card {
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.08), 0 8px 8px -5px rgba(0, 0, 0, 0.03);
+        }
+        .card-image {
+            height: 140px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #0891b2 0%, #0284c7 100%);
+        }
+        
+        .card-content { flex: 1; display: flex; flex-direction: column; }
+        .card-body { flex: 1; overflow: hidden; }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .risk-high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .risk-medium { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .risk-low { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+        
+        .modal-backdrop { backdrop-filter: blur(5px); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-item {
+            background: transparent;
+            color: #475569;
+            border-left: 4px solid transparent;
+        }
+        .menu-item.active {
+            background: linear-gradient(90deg, #e0f2fe, transparent);
+            color: #0284c7;
+            border-left-color: #0284c7;
+            font-weight: 600;
+        }
+        .menu-item:hover:not(.active) {
+            background: #f8fafc;
+            color: #0369a1;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #0891b2, #0284c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0891b2, #0284c7);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0e7490, #0369a1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Custom Scrollbar for side menu */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
 </head>
+<body class="bg-slate-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        
+        <div class="text-center mb-6 animate-fade-in relative z-10">
+            <button id="menuToggle" onclick="toggleMenu()" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-xl shadow-md p-3 sm:p-4 hover:bg-slate-50 transition-all border border-slate-100 text-teal-600">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 w-full max-w-4xl mx-auto ml-14 sm:ml-0">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-1">
+                    <i class="fas fa-heartbeat text-teal-500 mr-2"></i>
+                    <span class="gradient-text">ทะเบียนความเสี่ยง</span>
+                </h1>
+                <h2 class="text-sm sm:text-base md:text-lg text-slate-500 font-medium">หน่วยไตเทียม สถาบันบำราศนราดูร</h2>
+            </div>
+        </div>
 
-<body>
+        <div id="sideMenu" class="fixed top-0 left-0 h-full w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+            <div class="p-6 pt-10 flex-1 overflow-y-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-bold gradient-text">เมนูหลัก</h3>
+                    <button onclick="closeMenu()" class="text-slate-400 hover:text-red-500 text-2xl md:hidden">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <nav class="space-y-2">
+                    <button id="addTab" onclick="switchTab('add')" class="menu-item w-full text-left px-5 py-4 rounded-lg transition-all flex items-center gap-3 text-[15px]">
+                        <i class="fas fa-plus-circle text-lg w-6 text-center"></i> เพิ่มข้อมูลใหม่
+                    </button>
+                    <button id="dataTab" onclick="switchTab('data')" class="menu-item active w-full text-left px-5 py-4 rounded-lg transition-all flex items-center gap-3 text-[15px]">
+                        <i class="fas fa-list-alt text-lg w-6 text-center"></i> ข้อมูลทั้งหมด
+                    </button>
+                    <button id="dashboardTab" onclick="switchTab('dashboard')" class="menu-item w-full text-left px-5 py-4 rounded-lg transition-all flex items-center gap-3 text-[15px]">
+                        <i class="fas fa-chart-pie text-lg w-6 text-center"></i> แดชบอร์ด
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400">
+                Risk Register System v1.1
+            </div>
+        </div>
 
-<div class="container">
+        <div id="menuOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden transition-opacity" onclick="closeMenu()"></div>
 
-  <div class="card">
-    <h1>📋 ทะเบียนความเสี่ยง หน่วยไตเทียม</h1>
+        <div id="addView" class="hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 mb-8 animate-fade-in max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <h2 id="formTitle" class="text-xl sm:text-2xl font-bold text-slate-800">
+                        <i class="fas fa-edit text-teal-500 mr-2"></i>บันทึกข้อมูลความเสี่ยง
+                    </h2>
+                </div>
+                
+                <form id="dataFormElement" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-calendar-alt text-teal-500 mr-2"></i>วันที่เกิดเหตุ <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="dateInput" required 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700">
+                        </div>
 
-    <div class="level-box">
-      <h2>ระดับความเสี่ยง</h2>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-hospital-user text-blue-500 mr-2"></i>แผนก <span class="text-red-500">*</span>
+                            </label>
+                            <select id="departmentInput" required 
+                                    class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700">
+                                <option value="" disabled selected>-- เลือกแผนก --</option>
+                                <option value="ไตเทียม 4/2">ไตเทียม 4/2</option>
+                                <option value="ไตเทียม 5/1">ไตเทียม 5/1</option>
+                                <option value="ไตเทียม 5/2">ไตเทียม 5/2</option>
+                            </select>
+                        </div>
 
-      <ul>
-        <li><b>A</b> : เหตุการณ์เกือบพลาด ไม่มีผลกระทบต่อผู้ป่วย</li>
-        <li><b>B</b> : เกิดเหตุการณ์ แต่ไม่ถึงผู้ป่วย</li>
-        <li><b>C</b> : ถึงผู้ป่วย แต่ไม่เกิดอันตราย</li>
-        <li><b>D</b> : ต้องเฝ้าระวังเพิ่มเติม</li>
-        <li><b>E</b> : เกิดอันตรายชั่วคราว ต้องรักษาเพิ่มเติม</li>
-        <li><b>F</b> : อันตรายชั่วคราว ต้องนอนโรงพยาบาล</li>
-        <li><b>G</b> : อันตรายถาวร</li>
-        <li><b>H</b> : เกือบเสียชีวิต ต้องช่วยชีวิต</li>
-        <li><b>I</b> : เสียชีวิต</li>
-      </ul>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>ระดับความเสี่ยง <span class="text-red-500">*</span>
+                            </label>
+                            <select id="riskLevelInput" required 
+                                    class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700">
+                                <option value="" disabled selected>-- เลือกระดับความเสี่ยง (A - I) --</option>
+                                <option value="A">A - เกิดขึ้นแต่ไม่ถึงผู้ป่วย</option>
+                                <option value="B">B - ถึงผู้ป่วยแต่ไม่เกิดอันตราย</option>
+                                <option value="C">C - ถึงผู้ป่วย เกิดอันตรายเล็กน้อย</option>
+                                <option value="D">D - ถึงผู้ป่วย ต้องเฝ้าระวังเพิ่ม</option>
+                                <option value="E">E - ถึงผู้ป่วย ต้องให้การรักษา</option>
+                                <option value="F">F - ถึงผู้ป่วย ต้องนอน รพ. นานขึ้น</option>
+                                <option value="G">G - ถึงผู้ป่วย เกิดอันตรายถาวร</option>
+                                <option value="H">H - ถึงผู้ป่วย ต้องปั๊มหัวใจ</option>
+                                <option value="I">I - ถึงผู้ป่วย เสียชีวิต</option>
+                            </select>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-heading text-indigo-500 mr-2"></i>หัวข้อความเสี่ยง <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="subjectInput" required 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700"
+                                   placeholder="เช่น อุปกรณ์ชำรุด, ผู้ป่วยลื่นล้ม">
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-align-left text-purple-500 mr-2"></i>รายละเอียดเพิ่มเติม <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="detailsInput" rows="4" required 
+                                      class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700"
+                                      placeholder="อธิบายเหตุการณ์ที่เกิดขึ้นโดยละเอียด"></textarea>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-tools text-amber-500 mr-2"></i>การแก้ไขเบื้องต้น / แนวทางป้องกัน
+                            </label>
+                            <textarea id="solutionInput" rows="3" 
+                                      class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700"
+                                      placeholder="ระบุสิ่งที่ได้ดำเนินการไปแล้ว หรือแนวทางป้องกันในอนาคต"></textarea>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-user-nurse text-green-500 mr-2"></i>ผู้รายงาน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="reporterInput" required 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-slate-50 hover:bg-white text-slate-700"
+                                   placeholder="ชื่อ-นามสกุล หรือ รหัสพนักงาน">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-image text-pink-500 mr-2"></i>ภาพประกอบ 1 (ถ้ามี)
+                            </label>
+                            <input type="file" id="file1Input" accept="image/*" 
+                                   class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-white text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i class="fas fa-image text-pink-500 mr-2"></i>ภาพประกอบ 2 (ถ้ามี)
+                            </label>
+                            <input type="file" id="file2Input" accept="image/*" 
+                                   class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-white text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 pt-6 border-t border-slate-100 mt-6">
+                        <button type="button" onclick="switchTab('data')" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-all">
+                            ยกเลิก
+                        </button>
+                        <button type="submit" id="submitBtn" class="btn-primary text-white px-8 py-3 rounded-xl font-medium shadow-md shadow-cyan-500/30 flex items-center gap-2">
+                            <i class="fas fa-save"></i> บันทึกข้อมูล
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="dataView">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 mb-6 animate-fade-in flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:max-w-md">
+                    <input type="text" id="searchInput" placeholder="ค้นหาจากหัวข้อ, แผนก, รายละเอียด..." 
+                           class="pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-full bg-slate-50 hover:bg-white transition-all text-sm">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                </div>
+                <div class="text-sm text-slate-500 font-medium whitespace-nowrap">
+                    รายการทั้งหมด: <span id="totalCount" class="text-teal-600 font-bold text-lg">0</span>
+                </div>
+            </div>
+            
+            <div id="dataCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 animate-fade-in">
+                <div class="col-span-full flex flex-col justify-center items-center py-20">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-teal-500 mb-4"></i>
+                    <p class="text-slate-500 font-medium">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardView" class="hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6 animate-fade-in">
+                <div class="flex flex-wrap gap-3 justify-center items-center">
+                    <select id="monthFilter" class="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 text-sm bg-slate-50">
+                        <option value="">ทุกเดือน</option>
+                        <option value="01">มกราคม</option>
+                        <option value="02">กุมภาพันธ์</option>
+                        <option value="03">มีนาคม</option>
+                        <option value="04">เมษายน</option>
+                        <option value="05">พฤษภาคม</option>
+                        <option value="06">มิถุนายน</option>
+                        <option value="07">กรกฎาคม</option>
+                        <option value="08">สิงหาคม</option>
+                        <option value="09">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                    <select id="yearFilter" class="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 text-sm bg-slate-50">
+                        <option value="">ทุกปี</option>
+                    </select>
+                    <button onclick="updateDashboard()" class="btn-primary text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2">
+                        <i class="fas fa-filter"></i> กรองข้อมูล
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6" id="riskStatsCards">
+                </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <h3 class="text-base font-bold text-slate-700 mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fas fa-chart-pie text-teal-500 mr-2"></i> สัดส่วนตามผู้รายงาน
+                    </h3>
+                    <div class="h-64 w-full relative"><canvas id="reporterChart"></canvas></div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <h3 class="text-base font-bold text-slate-700 mb-4 flex items-center border-b border-slate-100 pb-3">
+                        <i class="fas fa-chart-doughnut text-orange-500 mr-2"></i> สัดส่วนระดับความเสี่ยง
+                    </h3>
+                    <div class="h-64 w-full relative"><canvas id="riskChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <form id="riskForm">
-
-      <input type="hidden" id="recordId">
-
-      <div class="grid">
-
-        <div class="form-group">
-          <label>วันที่</label>
-          <input type="date" id="date" required>
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-fade-in overflow-hidden">
+            <div class="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50/50">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                    <i class="fas fa-file-alt text-teal-500 mr-2"></i>รายละเอียดความเสี่ยง
+                </h2>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-red-500 text-xl transition-colors bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-sm border border-slate-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="detailContent" class="p-6 overflow-y-auto flex-1">
+                </div>
         </div>
-
-        <div class="form-group">
-          <label>หัวข้อความเสี่ยง</label>
-          <input type="text" id="subject" required>
-        </div>
-
-        <div class="form-group">
-          <label>ระดับความเสี่ยง</label>
-          <select id="riskLevel" required>
-            <option value="">-- เลือก --</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="G">G</option>
-            <option value="H">H</option>
-            <option value="I">I</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>ผู้รายงาน</label>
-          <input type="text" id="reporter">
-        </div>
-
-      </div>
-
-      <div class="form-group">
-        <label>รายละเอียด</label>
-        <textarea id="details"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>แนวทางแก้ไข</label>
-        <textarea id="solution"></textarea>
-      </div>
-
-      <div class="grid">
-
-        <div class="form-group">
-          <label>แนบรูปภาพ 1</label>
-          <input type="file" id="file1" accept="image/*">
-        </div>
-
-        <div class="form-group">
-          <label>แนบรูปภาพ 2</label>
-          <input type="file" id="file2" accept="image/*">
-        </div>
-
-      </div>
-
-      <div class="actions">
-
-        <button type="submit" class="btn btn-primary">
-          💾 บันทึกข้อมูล
-        </button>
-
-        <button type="button" class="btn btn-warning" onclick="resetForm()">
-          🔄 ล้างฟอร์ม
-        </button>
-
-      </div>
-
-      <div class="loading" id="loading">
-        ⏳ กำลังบันทึกข้อมูล...
-      </div>
-
-    </form>
-  </div>
-
-  <div class="card">
-
-    <h2>📑 รายการความเสี่ยง</h2>
-
-    <div class="table-responsive">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>วันที่</th>
-            <th>หัวข้อ</th>
-            <th>ระดับ</th>
-            <th>รายละเอียด</th>
-            <th>ผู้รายงาน</th>
-            <th>รูป</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-
-        <tbody id="tableBody"></tbody>
-
-      </table>
-
     </div>
 
-  </div>
+    <script>
+        let allData = [];
+        let currentEditId = null;
+        let currentEditData = null;
+        let isSubmitting = false;
+        let reporterChart = null;
+        let riskChart = null;
+        
+        // **********************************************
+        // 🚨 วาง Web App URL ของคุณที่นี่
+        // **********************************************
+        const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec'; 
 
-</div>
+        const pastelColors = ['#0891b2', '#0284c7', '#2563eb', '#4f46e5', '#7c3aed', '#c026d3', '#db2777', '#e11d48', '#ea580c', '#d97706'];
 
-<script>
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwuZXpealGoAtm5c129us9TyqD4Kww5KOJ_BYUvzy1aXGQw_eqRNVekL15A8W9mz8tL/exec";
+        // ระบบเปิด/ปิดเมนูที่เสถียรขึ้น
+        function toggleMenu() {
+            const sideMenu = document.getElementById('sideMenu');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            if (sideMenu.classList.contains('-translate-x-full')) {
+                sideMenu.classList.remove('-translate-x-full');
+                menuOverlay.classList.remove('hidden');
+                // delay opacity for fade effect
+                setTimeout(() => menuOverlay.classList.remove('opacity-0'), 10);
+            } else {
+                closeMenu();
+            }
+        }
+        
+        function closeMenu() {
+            const sideMenu = document.getElementById('sideMenu');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            sideMenu.classList.add('-translate-x-full');
+            menuOverlay.classList.add('hidden');
+        }
 
-window.onload = () => {
-  loadData();
-};
+        function switchTab(tab, isEdit = false) {
+            ['addTab', 'dataTab', 'dashboardTab'].forEach(id => document.getElementById(id).classList.remove('active'));
+            ['addView', 'dataView', 'dashboardView'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            
+            document.getElementById(tab + 'Tab').classList.add('active');
+            document.getElementById(tab + 'View').classList.remove('hidden');
+            
+            if (tab === 'add') {
+                if (!isEdit) {
+                    currentEditId = null;
+                    currentEditData = null;
+                    document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle text-teal-500 mr-2"></i>เพิ่มข้อมูลใหม่';
+                    document.getElementById('dataFormElement').reset();
+                    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+                }
+            } else if (tab === 'dashboard') {
+                initializeDashboard();
+            }
+            
+            // สั่งปิดเมนูทันทีเมื่อกดเลือก (สำคัญสำหรับมือถือ)
+            closeMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function initializeDashboard() {
+            populateYearFilter();
+            updateDashboard();
+        }
+        
+        function populateYearFilter() {
+            const yearFilter = document.getElementById('yearFilter');
+            const years = [...new Set(allData.map(item => {
+                const d = new Date(item.date);
+                return isNaN(d) ? null : d.getFullYear();
+            }).filter(y => y !== null))].sort((a, b) => b - a);
+            
+            yearFilter.innerHTML = '<option value="">ทุกปี</option>';
+            years.forEach(year => {
+                yearFilter.innerHTML += `<option value="${year}">${year + 543}</option>`;
+            });
+        }
+        
+        function updateDashboard() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const selectedYear = document.getElementById('yearFilter').value;
+            
+            let filteredData = allData;
+            if (selectedMonth || selectedYear) {
+                filteredData = allData.filter(item => {
+                    if(!item.date) return false;
+                    const itemDate = new Date(item.date);
+                    if(isNaN(itemDate)) return false;
+                    
+                    const itemMonth = String(itemDate.getMonth() + 1).padStart(2, '0');
+                    const itemYear = itemDate.getFullYear();
+                    
+                    let matchMonth = !selectedMonth || itemMonth === selectedMonth;
+                    let matchYear = !selectedYear || itemYear == selectedYear;
+                    return matchMonth && matchYear;
+                });
+            }
+            updateRiskStatsCards(filteredData);
+            updateCharts(filteredData);
+        }
+        
+        function updateRiskStatsCards(data) {
+            const riskLevels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+            const riskColors = {
+                'A': 'text-emerald-600 bg-emerald-50 border-emerald-100',
+                'B': 'text-green-600 bg-green-50 border-green-100',
+                'C': 'text-lime-600 bg-lime-50 border-lime-100',
+                'D': 'text-yellow-600 bg-yellow-50 border-yellow-100',
+                'E': 'text-amber-600 bg-amber-50 border-amber-100',
+                'F': 'text-orange-600 bg-orange-50 border-orange-100',
+                'G': 'text-red-500 bg-red-50 border-red-100',
+                'H': 'text-rose-600 bg-rose-50 border-rose-100',
+                'I': 'text-pink-700 bg-pink-50 border-pink-100'
+            };
+            
+            const container = document.getElementById('riskStatsCards');
+            let cardsHTML = '';
+            
+            riskLevels.forEach(level => {
+                const count = data.filter(item => (item.riskLevel||'').toUpperCase().includes(level)).length;
+                const styleClass = riskColors[level] || 'text-slate-600 bg-slate-50 border-slate-100';
+                
+                cardsHTML += `
+                    <div class="rounded-xl border shadow-sm p-3 text-center ${styleClass}">
+                        <div class="text-xs font-bold mb-1 opacity-80">ระดับ ${level}</div>
+                        <div class="text-2xl font-black">${count}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = cardsHTML;
+        }
+        
+        function updateCharts(data) {
+            // Reporter Chart
+            const reporterCounts = {};
+            data.forEach(item => {
+                if(item.reporter) reporterCounts[item.reporter] = (reporterCounts[item.reporter] || 0) + 1;
+            });
+            
+            const rLabels = Object.keys(reporterCounts);
+            const rValues = Object.values(reporterCounts);
+            
+            if (reporterChart) reporterChart.destroy();
+            reporterChart = new Chart(document.getElementById('reporterChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: rLabels.length ? rLabels : ['ไม่มีข้อมูล'],
+                    datasets: [{
+                        data: rValues.length ? rValues : [1],
+                        backgroundColor: rLabels.length ? pastelColors : ['#e2e8f0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {family: 'Sarabun'} } } } }
+            });
 
-async function toBase64(file){
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = ()=>resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
+            // Risk Level Chart
+            const riskCounts = {};
+            data.forEach(item => {
+                const lvl = (item.riskLevel || 'ไม่ระบุ').charAt(0).toUpperCase();
+                riskCounts[lvl] = (riskCounts[lvl] || 0) + 1;
+            });
+            const riskLevels = Object.keys(riskCounts).sort();
+            const riskColors = riskLevels.map(l => {
+                const map = {'A':'#10b981','B':'#22c55e','C':'#84cc16','D':'#eab308','E':'#f59e0b','F':'#f97316','G':'#ef4444','H':'#e11d48','I':'#be123c'};
+                return map[l] || '#94a3b8';
+            });
 
-document.getElementById("riskForm").addEventListener("submit", async function(e){
+            if (riskChart) riskChart.destroy();
+            riskChart = new Chart(document.getElementById('riskChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: riskLevels.length ? riskLevels : ['ไม่มีข้อมูล'],
+                    datasets: [{
+                        label: 'จำนวนรายการ',
+                        data: riskLevels.length ? Object.values(riskCounts) : [0],
+                        backgroundColor: riskColors,
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: {stepSize: 1} } } }
+            });
+        }
 
-  e.preventDefault();
+        async function loadData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getData`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    allData = result.data;
+                    document.getElementById('totalCount').innerText = allData.length;
+                    displayCards(allData);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('dataCardsContainer').innerHTML = `
+                    <div class="col-span-full flex flex-col justify-center items-center py-16">
+                        <i class="fas fa-exclamation-circle text-5xl text-red-300 mb-4"></i>
+                        <p class="text-slate-600 font-medium">ไม่สามารถโหลดข้อมูลได้ หรือ URL ไม่ถูกต้อง</p>
+                    </div>`;
+            }
+        }
 
-  document.getElementById("loading").style.display="block";
+        function displayCards(data) {
+            const container = document.getElementById('dataCardsContainer');
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex flex-col justify-center items-center py-16 bg-white rounded-2xl border border-slate-100 border-dashed">
+                        <i class="fas fa-inbox text-5xl text-slate-300 mb-3"></i>
+                        <p class="text-slate-500 font-medium">ไม่พบข้อมูลความเสี่ยง</p>
+                    </div>`;
+                return;
+            }
 
-  try{
+            const sortedData = [...data].reverse();
+            container.innerHTML = sortedData.map(item => {
+                // รองรับคีย์ภาษาไทยกรณี Google Apps Script ส่งออกมาเป็นชื่อคอลัมน์เดิม
+                const deptName = item.department || item['แผนก'] || item['หน่วยงาน'] || 'ไม่ระบุแผนก';
+                const riskLvl = (item.riskLevel || '-').charAt(0).toUpperCase();
 
-    const file1Input = document.getElementById("file1");
-    const file2Input = document.getElementById("file2");
+                return `
+                <div class="card bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer" onclick="viewDetail('${item.id}')">
+                    <div class="card-image relative">
+                        ${item.file1 ? 
+                            `<img src="${item.file1}" alt="รูปภาพ" class="w-full h-full object-cover">` :
+                            `<div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                                <i class="fas fa-image text-slate-300 text-3xl"></i>
+                            </div>`
+                        }
+                        <div class="absolute top-3 right-3">
+                            <span class="risk-badge ${getRiskClass(riskLvl)} shadow-sm">
+                                Level ${riskLvl}
+                            </span>
+                        </div>
+                        <div class="absolute top-3 left-3 flex gap-1.5">
+                            <button onclick="event.stopPropagation(); editData('${item.id}')" class="bg-white/90 backdrop-blur text-teal-600 hover:bg-teal-50 p-2 rounded-lg shadow-sm border border-white/50">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteData('${item.id}')" class="bg-white/90 backdrop-blur text-red-500 hover:bg-red-50 p-2 rounded-lg shadow-sm border border-white/50">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-content p-4">
+                        <div class="mb-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                                <i class="fas fa-hospital-user mr-1"></i>${deptName}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="font-bold text-slate-800 text-[15px] mb-1.5 leading-tight line-clamp-2">${item.subject || 'ไม่มีหัวข้อ'}</h3>
+                            <p class="text-slate-500 text-xs mb-2 line-clamp-2 leading-relaxed">${item.details || 'ไม่มีรายละเอียด'}</p>
+                        </div>
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-100 mt-2">
+                            <div class="flex items-center text-slate-400 text-[11px]">
+                                <i class="fas fa-user mr-1.5"></i> <span class="truncate max-w-[90px]">${item.reporter || '-'}</span>
+                            </div>
+                            <div class="flex items-center text-slate-400 text-[11px] font-medium">
+                                <i class="fas fa-calendar mr-1.5"></i> <span>${formatDate(item.date)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
 
-    let file1 = "";
-    let file2 = "";
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const d = new Date(dateString);
+            if (isNaN(d)) return dateString;
+            return d.toLocaleDateString('th-TH', { day:'2-digit', month:'short', year:'2-digit' });
+        }
 
-    if(file1Input.files[0]){
-      file1 = await toBase64(file1Input.files[0]);
-    }
+        function getRiskClass(riskLevel) {
+            const l = String(riskLevel).charAt(0).toUpperCase();
+            if(['A','B','C'].includes(l)) return 'risk-low';
+            if(['D','E','F'].includes(l)) return 'risk-medium';
+            if(['G','H','I'].includes(l)) return 'risk-high';
+            return 'risk-medium';
+        }
 
-    if(file2Input.files[0]){
-      file2 = await toBase64(file2Input.files[0]);
-    }
+        function editData(id) {
+            const item = allData.find(d => String(d.id) === String(id));
+            if (!item) return;
 
-    const payload = {
-      action : document.getElementById("recordId").value ? "updateData" : "addData",
-      id : document.getElementById("recordId").value,
-      date : document.getElementById("date").value,
-      subject : document.getElementById("subject").value,
-      riskLevel : document.getElementById("riskLevel").value,
-      details : document.getElementById("details").value,
-      solution : document.getElementById("solution").value,
-      reporter : document.getElementById("reporter").value,
+            switchTab('add', true);
+            currentEditId = id;
+            currentEditData = item;
+            
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit text-teal-500 mr-2"></i>แก้ไขข้อมูลความเสี่ยง';
+            
+            // Format date for input[type="date"]
+            let dateValue = '';
+            if (item.date) {
+                const d = new Date(item.date);
+                if (!isNaN(d)) {
+                    dateValue = d.toISOString().split('T')[0];
+                }
+            }
+            document.getElementById('dateInput').value = dateValue;
+            
+            // ใช้ชื่อคอลัมน์เผื่อกรณี Backend รีเทิร์นเป็นภาษาไทย
+            const dept = item.department || item['แผนก'] || item['หน่วยงาน'] || '';
+            document.getElementById('departmentInput').value = dept;
+            
+            // ดึงเฉพาะตัวอักษรตัวแรกสำหรับระดับความเสี่ยง (เผื่อระบบเก่าเซฟเป็นข้อความยาว)
+            const riskLvl = (item.riskLevel || '').charAt(0).toUpperCase();
+            document.getElementById('riskLevelInput').value = riskLvl;
+            
+            document.getElementById('subjectInput').value = item.subject || '';
+            document.getElementById('detailsInput').value = item.details || '';
+            document.getElementById('solutionInput').value = item.solution || '';
+            document.getElementById('reporterInput').value = item.reporter || '';
+            
+            document.getElementById('file1Input').value = '';
+            document.getElementById('file2Input').value = '';
+        }
 
-      file1 : file1,
-      file1Name : file1Input.files[0]?.name || "",
+        function viewDetail(id) {
+            const item = allData.find(d => String(d.id) === String(id));
+            if (!item) return;
 
-      file2 : file2,
-      file2Name : file2Input.files[0]?.name || ""
-    };
+            const deptName = item.department || item['แผนก'] || item['หน่วยงาน'] || '-';
+            const riskLvl = (item.riskLevel || '-').charAt(0).toUpperCase();
 
-    const response = await fetch(API_URL,{
-      method:"POST",
-      body:JSON.stringify(payload)
-    });
+            document.getElementById('detailContent').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="risk-badge ${getRiskClass(riskLvl)} text-sm px-3 py-1">Level ${riskLvl}</span>
+                        <span class="text-sm text-slate-500"><i class="fas fa-calendar-alt mr-1"></i> ${formatDate(item.date)}</span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-slate-800 leading-snug">${item.subject || '-'}</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 my-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <div>
+                            <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-bold">แผนกที่เกิดเหตุ</div>
+                            <div class="text-sm font-medium text-slate-800 flex items-center"><i class="fas fa-hospital-user text-blue-400 w-5"></i> ${deptName}</div>
+                        </div>
+                        <div>
+                            <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-bold">ผู้รายงาน</div>
+                            <div class="text-sm font-medium text-slate-800 flex items-center"><i class="fas fa-user-nurse text-green-400 w-5"></i> ${item.reporter || '-'}</div>
+                        </div>
+                    </div>
 
-    const result = await response.json();
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-slate-700 mb-2 flex items-center"><i class="fas fa-align-left text-purple-400 mr-2"></i>รายละเอียด</h4>
+                        <div class="bg-white border border-slate-100 p-4 rounded-xl text-slate-600 text-sm whitespace-pre-wrap leading-relaxed">${item.details || '-'}</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-slate-700 mb-2 flex items-center"><i class="fas fa-tools text-amber-400 mr-2"></i>แนวทางการแก้ไข / ป้องกัน</h4>
+                        <div class="bg-white border border-slate-100 p-4 rounded-xl text-slate-600 text-sm whitespace-pre-wrap leading-relaxed">${item.solution || '-'}</div>
+                    </div>
+                    
+                    ${(item.file1 || item.file2) ? `
+                        <div class="mt-6 pt-4 border-t border-slate-100">
+                            <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fas fa-images text-pink-400 mr-2"></i>ภาพประกอบ</h4>
+                            <div class="flex flex-wrap gap-4">
+                                ${item.file1 ? `<img src="${item.file1}" onclick="window.open('${item.file1}')" class="h-24 w-24 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity">` : ''}
+                                ${item.file2 ? `<img src="${item.file2}" onclick="window.open('${item.file2}')" class="h-24 w-24 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity">` : ''}
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-2">*คลิกที่รูปเพื่อดูขนาดเต็ม</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
 
-    if(result.success){
-      alert("บันทึกสำเร็จ");
-      resetForm();
-      loadData();
-    }else{
-      alert(result.error || "เกิดข้อผิดพลาด");
-    }
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
 
-  }catch(err){
-    alert(err);
-  }
+        async function deleteData(id) {
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "ข้อมูลนี้จะถูกลบออกจากระบบถาวร",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'ลบข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                customClass: { confirmButton: 'rounded-xl', cancelButton: 'rounded-xl' }
+            });
 
-  document.getElementById("loading").style.display="none";
+            if (!result.isConfirmed) return;
 
-});
+            Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-async function loadData(){
+            try {
+                const formData = new FormData();
+                formData.append('action', 'deleteData');
+                formData.append('id', id);
 
-  const response = await fetch(API_URL + "?action=getData");
-  const result = await response.json();
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+                const res = await response.json();
 
-  const tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "";
+                if (res.success) {
+                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+                    loadData();
+                } else { throw new Error(res.error); }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'ไม่สามารถลบข้อมูลได้' });
+            }
+        }
 
-  result.data.reverse().forEach(item=>{
+        document.getElementById('dataFormElement').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
 
-    const tr = document.createElement("tr");
+            // รวบรวมข้อมูล
+            const date = document.getElementById('dateInput').value;
+            const department = document.getElementById('departmentInput').value;
+            const riskLevel = document.getElementById('riskLevelInput').value;
+            const subject = document.getElementById('subjectInput').value;
+            const details = document.getElementById('detailsInput').value;
+            const solution = document.getElementById('solutionInput').value;
+            const reporter = document.getElementById('reporterInput').value;
+            const file1Input = document.getElementById('file1Input');
+            const file2Input = document.getElementById('file2Input');
 
-    tr.innerHTML = `
-      <td>${item.date || ""}</td>
+            isSubmitting = true;
+            Swal.fire({ title: currentEditId ? 'กำลังอัปเดต...' : 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-      <td>${item.subject || ""}</td>
+            try {
+                const formData = new FormData();
+                formData.append('action', currentEditId ? 'updateData' : 'addData');
+                formData.append('date', date);
+                
+                // ** สำคัญ: ส่งเป็น Key 'department' หรือ 'หน่วยงาน' ให้ตรงกับฝั่ง App Script **
+                formData.append('department', department);
+                formData.append('หน่วยงาน', department); // ส่งเผื่อไปทั้งสองคีย์เพื่อความชัวร์
+                
+                formData.append('riskLevel', riskLevel);
+                formData.append('subject', subject);
+                formData.append('details', details);
+                formData.append('solution', solution);
+                formData.append('reporter', reporter);
+                
+                if (currentEditId) {
+                    formData.append('id', currentEditId);
+                    formData.append('existingFile1', currentEditData.file1 || '');
+                    formData.append('existingFile2', currentEditData.file2 || '');
+                }
+                
+                if (file1Input.files[0]) {
+                    formData.append('file1', await fileToBase64(file1Input.files[0]));
+                    formData.append('file1Name', file1Input.files[0].name);
+                }
+                if (file2Input.files[0]) {
+                    formData.append('file2', await fileToBase64(file2Input.files[0]));
+                    formData.append('file2Name', file2Input.files[0].name);
+                }
 
-      <td>
-        <span class="risk-badge ${item.riskLevel}">
-          ${item.riskLevel || ""}
-        </span>
-      </td>
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+                const result = await response.json();
 
-      <td>${item.details || ""}</td>
+                if (result.success) {
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', confirmButtonColor: '#0891b2', timer: 1500 });
+                    switchTab('data');
+                    loadData();
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่' });
+            } finally {
+                isSubmitting = false;
+            }
+        });
 
-      <td>${item.reporter || ""}</td>
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const filtered = allData.filter(item => {
+                const deptName = item.department || item['แผนก'] || item['หน่วยงาน'] || '';
+                return (item.subject || '').toLowerCase().includes(term) ||
+                       (item.details || '').toLowerCase().includes(term) ||
+                       (deptName).toLowerCase().includes(term) ||
+                       (item.reporter || '').toLowerCase().includes(term);
+            });
+            document.getElementById('totalCount').innerText = filtered.length;
+            displayCards(filtered);
+        });
 
-      <td>
-        ${item.file1 ? `<a href="${item.file1}" target="_blank"><img src="${item.file1}" class="preview"></a>` : ""}
-      </td>
-
-      <td>
-        <div class="actions">
-
-          <button class="btn btn-success"
-            onclick='editRecord(${JSON.stringify(item)})'>
-            แก้ไข
-          </button>
-
-          <button class="btn btn-danger"
-            onclick='deleteRecord("${item.id}")'>
-            ลบ
-          </button>
-
-        </div>
-      </td>
-    `;
-
-    tableBody.appendChild(tr);
-
-  });
-
-}
-
-function editRecord(item){
-
-  document.getElementById("recordId").value = item.id || "";
-  document.getElementById("date").value = item.date || "";
-  document.getElementById("subject").value = item.subject || "";
-  document.getElementById("riskLevel").value = item.riskLevel || "";
-  document.getElementById("details").value = item.details || "";
-  document.getElementById("solution").value = item.solution || "";
-  document.getElementById("reporter").value = item.reporter || "";
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-}
-
-async function deleteRecord(id){
-
-  if(!confirm("ต้องการลบข้อมูลใช่หรือไม่ ?")) return;
-
-  const formData = new FormData();
-  formData.append("action","deleteData");
-  formData.append("id",id);
-
-  const response = await fetch(API_URL,{
-    method:"POST",
-    body:formData
-  });
-
-  const result = await response.json();
-
-  if(result.success){
-    alert("ลบสำเร็จ");
-    loadData();
-  }else{
-    alert(result.error || "เกิดข้อผิดพลาด");
-  }
-
-}
-
-function resetForm(){
-
-  document.getElementById("riskForm").reset();
-  document.getElementById("recordId").value="";
-
-}
-
-</script>
-
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
 </body>
 </html>
